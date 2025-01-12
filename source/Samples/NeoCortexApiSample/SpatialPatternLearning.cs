@@ -130,7 +130,7 @@ namespace NeoCortexApiSample
 
             // It creates the instance of Spatial Pooler Multithreaded version.
             SpatialPooler sp = new SpatialPooler(hpa);
-            sp = new SpatialPoolerMT(hpa);
+            //sp = new SpatialPoolerMT(hpa);
 
             // Initializes the 
             sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, NeoCortexApi.Entities.Column>(1) });
@@ -303,7 +303,7 @@ namespace NeoCortexApiSample
                 Debug.WriteLine($"Input: {input} SDR: {Helpers.StringifyVector(actCols)}");
 
                 // Define a threshold value for normalizing permanences, this value provides best Reconstructed Input
-                var ThresholdValue = 7.3;
+                var ThresholdValue = 8.3;
 
                 // Normalize permanences (0 and 1) based on the threshold value and convert them to a list of integers.
                 List<int> normalizePermanenceList = Helpers.ThresholdingProbabilities(permanenceValuesList, ThresholdValue);
