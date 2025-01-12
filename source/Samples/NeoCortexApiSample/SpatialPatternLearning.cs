@@ -39,7 +39,7 @@ namespace NeoCortexApiSample
             {
                 CellsPerColumn = 10,
                 MaxBoost = maxBoost,
-                DutyCyclePeriod = 200,
+                DutyCyclePeriod = 100,
                 MinPctOverlapDutyCycles = minOctOverlapCycles,
 
                 GlobalInhibition = false,
