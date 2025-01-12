@@ -167,7 +167,7 @@ namespace NeoCortexApiSample
             }
 
             // Learning process will take 1000 iterations (cycles)
-            int maxSPLearningCycles = 500;
+            int maxSPLearningCycles = 700;
 
             int numStableCycles = 0;
 
@@ -319,7 +319,6 @@ namespace NeoCortexApiSample
                 double[] similarityArray = new double[] { similarity };
                 // Add the Similarity Arrays to the list.
                 similarityList.Add(similarityArray);
-
             }
             // Generate 1D heatmaps using the heatmap data and the normalized permanences To plot Heatmap, Encoded Inputs and Normalize Image combined.
             Generate1DHeatmaps(heatmapData, normalizedPermanence, encodedInputs);
