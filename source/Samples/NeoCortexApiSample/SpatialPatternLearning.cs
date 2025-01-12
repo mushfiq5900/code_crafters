@@ -83,7 +83,7 @@ namespace NeoCortexApiSample
 
             var sp = RunExperiment(cfg, encoder, inputValues);
 
-            //RunRustructuringExperiment(sp, encoder, inputValues);
+            RunRustructuringExperiment(sp, encoder, inputValues);
         }
 
        
