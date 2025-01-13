@@ -31,7 +31,7 @@ namespace NeoCortexApiSample
             int inputBits = 200;
 
             // We will build a slice of the cortex with the given number of mini-columns
-            int numColumns = 1024;
+            int numColumns = 512;
 
             //
             // This is a set of configuration parameters used in the experiment.
@@ -130,7 +130,7 @@ namespace NeoCortexApiSample
 
             // It creates the instance of Spatial Pooler Multithreaded version.
             SpatialPooler sp = new SpatialPooler(hpa);
-            sp = new SpatialPoolerMT(hpa);
+            //sp = new SpatialPoolerMT(hpa);
 
             // Initializes the 
             sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, NeoCortexApi.Entities.Column>(1) });
