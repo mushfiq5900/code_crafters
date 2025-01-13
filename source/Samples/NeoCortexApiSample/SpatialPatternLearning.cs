@@ -28,10 +28,10 @@ namespace NeoCortexApiSample
             double maxBoost = 5.0;
 
             // We will use 200 bits to represent an input vector (pattern).
-            int inputBits = 200;
+            int inputBits = 50;
 
             // We will build a slice of the cortex with the given number of mini-columns
-            int numColumns = 512;
+            int numColumns = 1024;
 
             //
             // This is a set of configuration parameters used in the experiment.
