@@ -28,7 +28,7 @@ namespace NeoCortexApiSample
             double maxBoost = 5.0;
 
             // We will use 200 bits to represent an input vector (pattern).
-            int inputBits = 100;
+            int inputBits = 200;
 
             // We will build a slice of the cortex with the given number of mini-columns
             int numColumns = 1024;
@@ -167,7 +167,7 @@ namespace NeoCortexApiSample
             }
 
             // Learning process will take 1000 iterations (cycles)
-            int maxSPLearningCycles = 200;
+            int maxSPLearningCycles = 1000;
 
             int numStableCycles = 0;
 
@@ -303,7 +303,7 @@ namespace NeoCortexApiSample
                 Debug.WriteLine($"Input: {input} SDR: {Helpers.StringifyVector(actCols)}");
 
                 // Define a threshold value for normalizing permanences, this value provides best Reconstructed Input
-                var ThresholdValue = 7.3;
+                var ThresholdValue = 8.3;
 
                 // Normalize permanences (0 and 1) based on the threshold value and convert them to a list of integers.
                 List<int> normalizePermanenceList = Helpers.ThresholdingProbabilities(permanenceValuesList, ThresholdValue);
