@@ -167,7 +167,7 @@ namespace NeoCortexApiSample
             }
 
             // Learning process will take 1000 iterations (cycles)
-            int maxSPLearningCycles = 1000;
+            int maxSPLearningCycles = 50;
 
             int numStableCycles = 0;
 
@@ -303,7 +303,7 @@ namespace NeoCortexApiSample
                 Debug.WriteLine($"Input: {input} SDR: {Helpers.StringifyVector(actCols)}");
 
                 // Define a threshold value for normalizing permanences, this value provides best Reconstructed Input
-                var ThresholdValue = 7;
+                var ThresholdValue = 8.3;
 
                 // Normalize permanences (0 and 1) based on the threshold value and convert them to a list of integers.
                 List<int> normalizePermanenceList = Helpers.ThresholdingProbabilities(permanenceValuesList, ThresholdValue);
