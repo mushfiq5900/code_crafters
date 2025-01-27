@@ -303,7 +303,7 @@ namespace NeoCortexApiSample
                 Debug.WriteLine($"Input: {input} SDR: {Helpers.StringifyVector(actCols)}");
 
                 // Define a threshold value for normalizing permanences, this value provides best Reconstructed Input
-                var ThresholdValue = 8;
+                var ThresholdValue = 8.3;
 
                 // Normalize permanences (0 and 1) based on the threshold value and convert them to a list of integers.
                 List<int> normalizePermanenceList = Helpers.ThresholdingProbabilities(permanenceValuesList, ThresholdValue);
