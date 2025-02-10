@@ -423,6 +423,10 @@ namespace NeoCortex
             if (data == null || data.Count == 0)
                 throw new ArgumentException("Heatmap data is empty.");
 
+            if (data.Count != rows * cols)
+                throw new ArgumentException($"Data length does not match the expected {rows}x{cols} matrix size.");
+
+
         }
 
 
