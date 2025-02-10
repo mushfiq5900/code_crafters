@@ -412,6 +412,22 @@ namespace NeoCortex
             myBitmap.Save(filePath, ImageFormat.Png);
         }
 
+
+
+
+        //DrawBit Heatmap Function
+        public static void DrawBitHeatmap(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 50)
+
+
+        {
+
+        }
+
+
+
+
+
+
         /// <summary>
         /// Draws a combined similarity plot based on the given list of similarity values.
         /// This graph can Visulaze the Similarity Bar graph of multiple inputs between the Encoded inputs
