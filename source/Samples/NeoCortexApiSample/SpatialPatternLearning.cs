@@ -304,9 +304,8 @@ namespace NeoCortexApiSample
 
 
 
-
-
-
+                //PermanenceValues for each inputs
+                Debug.WriteLine($"Input: {input} SDR: {Helpers.StringifyDictionarybykeys(allPermanenceDictionary)}");
 
 
 
