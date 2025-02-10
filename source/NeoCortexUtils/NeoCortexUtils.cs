@@ -420,6 +420,8 @@ namespace NeoCortex
 
 
         {
+            if (data == null || data.Count == 0)
+                throw new ArgumentException("Heatmap data is empty.");
 
         }
 
