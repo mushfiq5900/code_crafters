@@ -47,10 +47,10 @@ namespace NeoCortexApiSample
                 PotentialRadius = (int)(0.15 * inputBits),
                 LocalAreaDensity = -1,
                 ActivationThreshold = 10,
-                
+
                 MaxSynapsesPerSegment = (int)(0.01 * numColumns),
                 Random = new ThreadSafeRandom(42),
-                StimulusThreshold=10,
+                StimulusThreshold = 10,
             };
 
             double max = 100;
@@ -86,7 +86,7 @@ namespace NeoCortexApiSample
             RunRustructuringExperiment(sp, encoder, inputValues);
         }
 
-       
+
 
         /// <summary>
         /// Implements the experiment.
@@ -135,7 +135,7 @@ namespace NeoCortexApiSample
             // Initializes the 
             sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, NeoCortexApi.Entities.Column>(1) });
 
-            //mem.TraceProximalDendritePotential(true);
+            // mem.TraceProximalDendritePotential(true);
 
             // It creates the instance of the neo-cortex layer.
             // Algorithm will be performed inside of that layer.
@@ -167,7 +167,7 @@ namespace NeoCortexApiSample
             }
 
             // Learning process will take 1000 iterations (cycles)
-            int maxSPLearningCycles = 50;
+            int maxSPLearningCycles = 150;
 
             int numStableCycles = 0;
 
@@ -302,6 +302,14 @@ namespace NeoCortexApiSample
                 // Output debug information showing the input value and its corresponding SDR as a string.
                 Debug.WriteLine($"Input: {input} SDR: {Helpers.StringifyVector(actCols)}");
 
+
+
+
+
+
+
+
+
                 // Define a threshold value for normalizing permanences, this value provides best Reconstructed Input
                 var ThresholdValue = 8.3;
 
@@ -373,6 +381,9 @@ namespace NeoCortexApiSample
         /// Debugging information, including the generated file path and successful plot generation confirmation, is output using Debug.WriteLine.
         /// </remarks>
 
+
+
+
         public static void DrawSimilarityPlots(List<double[]> similaritiesList)
         {
             // Combine all similarities from the list of arrays
@@ -406,3 +417,5 @@ namespace NeoCortexApiSample
         }
     }
 }
+
+
