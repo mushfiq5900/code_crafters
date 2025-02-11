@@ -478,11 +478,24 @@ namespace NeoCortex
 
                     Color color = GetHeatColor(normalized);
 
-
+                    for (int di = 0; di < scaleFactor; di++)
+                    {
+                        for (int dj = 0; dj < scaleFactor; dj++)
+                        {
+                            int pixelX = j * scaleFactor + dj;
+                            int pixelY = i * scaleFactor + di;
+                            bitmap.SetPixel(pixelX, pixelY, color);
+                        }
+                    }
                 }
+            }
 
-                //Heat Color Function
-                private static Color GetHeatColor(double value)
+
+
+        }
+
+        //Heat Color Function
+        private static Color GetHeatColor(double value)
         {
             int r = 0, g = 0, b = 0;
             if (value >= 0.5)
