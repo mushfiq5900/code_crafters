@@ -462,6 +462,11 @@ namespace NeoCortex
             if (data.Count != rows * cols)
                 throw new ArgumentException($"Data length does not match the expected {rows}x{cols} matrix size.");
 
+            int bmpWidth = cols * scaleFactor;
+            int bmpHeight = rows * scaleFactor;
+            Bitmap bitmap = new Bitmap(bmpWidth, bmpHeight);
+
+
 
         }
 
