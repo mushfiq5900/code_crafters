@@ -430,7 +430,14 @@ namespace NeoCortex
                 graphics.Clear(Color.White);
                 Font font = new Font("Arial", scaleFactor / 2, FontStyle.Regular);
                 Brush textBrush = Brushes.Black;
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        int index = i * cols + j;
+                        double normalized = (data[index] - minVal) / (maxVal - minVal);
 
+            
             }
 
 
