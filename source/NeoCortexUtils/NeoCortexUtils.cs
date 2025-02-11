@@ -466,6 +466,9 @@ namespace NeoCortex
             int bmpHeight = rows * scaleFactor;
             Bitmap bitmap = new Bitmap(bmpWidth, bmpHeight);
 
+            double minVal = data.Min();
+            double maxVal = data.Max();
+
 
 
         }
