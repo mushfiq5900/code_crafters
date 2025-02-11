@@ -475,7 +475,7 @@ namespace NeoCortex
                 g = 255;
                 b = 0;
             }
-
+            return Color.FromArgb(r, g, b);
         }
 
 
