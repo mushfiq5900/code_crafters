@@ -460,6 +460,7 @@ namespace NeoCortex
         // Heat Color Function
         private static Color GetHeatColor(double value)
         {
+            int r = 0, g = 0, b = 0;
 
         }
 
