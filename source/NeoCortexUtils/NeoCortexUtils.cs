@@ -465,38 +465,27 @@ namespace NeoCortex
 
         }
 
-        // Heat Color Function
-        //private static Color GetHeatColor(double value)
-        //{
-        //    int r = 0, g = 0, b = 0;
-        //    if (value >= 0.5)
-        //    {
-        //        double ratio = (value - 0.5) * 2;
-        //        r = 255;
-        //        g = (int)(255 * (1 - ratio));
-        //        b = 0;
-        //    }
-        //    else
-        //    {
-        //        double ratio = value * 2;
-        //        r = (int)(255 * ratio);
-        //        g = 255;
-        //        b = 0;
-        //    }
-        //    return Color.FromArgb(r, g, b);
-        //}
-
-        // Grayscale heatmap color function
-        public static Color GetHeatColor(double value)
+        //Heat Color Function
+        private static Color GetHeatColor(double value)
         {
-            // Clamp value between 0 and 1
-            value = Math.Max(0, Math.Min(1, value));
-
-            // Compute grayscale intensity
-            int gray = (int)(255 * value);
-
-            return Color.FromArgb(gray, gray, gray);
+            int r = 0, g = 0, b = 0;
+            if (value >= 0.5)
+            {
+                double ratio = (value - 0.5) * 2;
+                r = 255;
+                g = (int)(255 * (1 - ratio));
+                b = 0;
+            }
+            else
+            {
+                double ratio = value * 2;
+                r = (int)(255 * ratio);
+                g = 255;
+                b = 0;
+            }
+            return Color.FromArgb(r, g, b);
         }
+
 
 
 
