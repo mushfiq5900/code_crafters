@@ -457,6 +457,11 @@ namespace NeoCortex
 
         }
 
+        // Heat Color Function
+        private static Color GetHeatColor(double value)
+        {
+
+        }
 
 
 
