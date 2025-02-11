@@ -424,8 +424,14 @@ namespace NeoCortex
             double maxVal = data.Max();
             int imgWidth = cols * scaleFactor;
             int imgHeight = rows * scaleFactor;
+            using (Bitmap bitmap = new Bitmap(imgWidth, imgHeight))
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.White);
+                Font font = new Font("Arial", scaleFactor / 2, FontStyle.Regular);
+                Brush textBrush = Brushes.Black;
 
-        }
+            }
 
 
 
