@@ -422,6 +422,8 @@ namespace NeoCortex
                 throw new ArgumentException($"Data length does not match the expected {rows}x{cols} matrix size.");
             double minVal = data.Min();
             double maxVal = data.Max();
+            int imgWidth = cols * scaleFactor;
+            int imgHeight = rows * scaleFactor;
 
         }
 
