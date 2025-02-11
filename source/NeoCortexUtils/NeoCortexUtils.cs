@@ -439,9 +439,12 @@ namespace NeoCortex
                         string text = normalized.ToString("F1");
                         int x = j * scaleFactor + 5;
                         int y = i * scaleFactor + 5;
-
-
+                        graphics.DrawString(text, font, textBrush, new PointF(x, y));
                     }
+                }
+
+
+            }
 
 
 
