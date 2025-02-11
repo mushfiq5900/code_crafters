@@ -461,7 +461,7 @@ namespace NeoCortex
         private static Color GetHeatColor(double value)
         {
             int r = 0, g = 0, b = 0;
-            if (value >= 0.6)
+            if (value < 0.5)
             {
                 double ratio = (value - 0.5) * 2;
                 r = 255;
