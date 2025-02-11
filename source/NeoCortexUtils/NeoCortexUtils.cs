@@ -476,6 +476,7 @@ namespace NeoCortex
                     int index = i * cols + j;
                     double normalized = (data[index] - minVal) / (maxVal - minVal);
 
+                    Color color = GetHeatColor(normalized);
 
 
                 }
