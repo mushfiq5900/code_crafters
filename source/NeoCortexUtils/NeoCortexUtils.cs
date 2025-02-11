@@ -412,6 +412,12 @@ namespace NeoCortex
             myBitmap.Save(filePath, ImageFormat.Png);
         }
 
+        //Saving Heatmap Values as Image
+        public static void SaveHeatmapValuesAsImage(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 50)
+        { 
+        
+        }
+
 
 
 
