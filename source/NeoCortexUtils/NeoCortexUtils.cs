@@ -468,6 +468,13 @@ namespace NeoCortex
                 g = (int)(255 * (1 - ratio));
                 b = 0;
             }
+            else
+            {
+                double ratio = value * 2;
+                r = (int)(255 * ratio);
+                g = 255;
+                b = 0;
+            }
 
         }
 
