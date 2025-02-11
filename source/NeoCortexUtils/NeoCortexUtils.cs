@@ -469,12 +469,19 @@ namespace NeoCortex
             double minVal = data.Min();
             double maxVal = data.Max();
 
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    int index = i * cols + j;
+                    double normalized = (data[index] - minVal) / (maxVal - minVal);
 
 
-        }
 
-        //Heat Color Function
-        private static Color GetHeatColor(double value)
+                }
+
+                //Heat Color Function
+                private static Color GetHeatColor(double value)
         {
             int r = 0, g = 0, b = 0;
             if (value >= 0.5)
