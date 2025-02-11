@@ -414,8 +414,13 @@ namespace NeoCortex
 
         //Saving Heatmap Values as Image
         public static void SaveHeatmapValuesAsImage(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 50)
-        { 
-        
+        {
+            if (data == null || data.Count == 0)
+                throw new ArgumentException("Heatmap data is empty.");
+
+            if (data.Count != rows * cols)
+                throw new ArgumentException($"Data length does not match the expected {rows}x{cols} matrix size.");
+
         }
 
 
