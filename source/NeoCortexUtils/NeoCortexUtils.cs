@@ -488,6 +488,8 @@ namespace NeoCortex
                         }
                     }
                 }
+                bitmap.Save(filePath, ImageFormat.Png);
+
             }
 
 
