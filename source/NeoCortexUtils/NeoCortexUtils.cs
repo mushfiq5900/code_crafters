@@ -413,7 +413,7 @@ namespace NeoCortex
         }
 
         //Saving Heatmap Values as Image
-        public static void SaveHeatmapValuesAsImage(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 25)
+        public static void SaveHeatmapValuesAsImage(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 50)
         {
             if (data == null || data.Count == 0)
                 throw new ArgumentException("Heatmap data is empty.");
@@ -573,7 +573,7 @@ namespace NeoCortex
                 int barWidth = Math.Max(minBarWidth, maxAvailableWidth / barCount);
 
                 // Define the width of the scale
-                int scaleWidth = 100;
+                int scaleWidth = 50;
 
                 // Draw each bar
                 for (int i = 0; i < barCount; i++)
