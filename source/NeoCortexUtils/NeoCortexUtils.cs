@@ -573,7 +573,7 @@ namespace NeoCortex
                 int barWidth = Math.Max(minBarWidth, maxAvailableWidth / barCount);
 
                 // Define the width of the scale
-                int scaleWidth = 50;
+                int scaleWidth = 100;
 
                 // Draw each bar
                 for (int i = 0; i < barCount; i++)
