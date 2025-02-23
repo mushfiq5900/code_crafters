@@ -500,20 +500,16 @@ namespace NeoCortex
         //Heat Color Function
         private static Color GetHeatColor(double value)
         {
-            int r = 0, g = 0, b = 0;
+            int r = 0, g = 0, b = 255;  // Use blue for high values
             if (value >= 0.5)
             {
                 double ratio = (value - 0.5) * 2;
-                r = 255;
-                g = (int)(255 * (1 - ratio));
-                b = 0;
+                r = 0; g = (int)(255 * (1 - ratio));
             }
             else
             {
                 double ratio = value * 2;
-                r = (int)(255 * ratio);
-                g = 255;
-                b = 0;
+                r = (int)(255 * ratio); g = 255;
             }
             return Color.FromArgb(r, g, b);
         }
