@@ -429,7 +429,7 @@ namespace NeoCortex
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
                 graphics.Clear(Color.White);
-                Font font = new Font("Arial", scaleFactor / 2, FontStyle.Regular);
+                Font font = new Font("Arial", scaleFactor / 3, FontStyle.Regular);
                 Brush textBrush = Brushes.Black;
                 for (int i = 0; i < rows; i++)
                 {
@@ -453,7 +453,7 @@ namespace NeoCortex
 
 
         //DrawBit Heatmap Function
-        public static void DrawBitHeatmap(List<double> data, string filePath, int rows = 10, int cols = 20, int scaleFactor = 70)
+        public static void DrawBitHeatmap(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 50)
 
 
         {
