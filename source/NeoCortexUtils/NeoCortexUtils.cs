@@ -424,6 +424,7 @@ namespace NeoCortex
             double maxVal = data.Max();
             int imgWidth = cols * scaleFactor;
             int imgHeight = rows * scaleFactor;
+            //int imgHeight = rows * scaleFactor;
             using (Bitmap bitmap = new Bitmap(imgWidth, imgHeight))
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
@@ -446,13 +447,13 @@ namespace NeoCortex
             }
         }
 
-        
+
 
 
 
 
         //DrawBit Heatmap Function
-        public static void DrawBitHeatmap(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 50)
+        public static void DrawBitHeatmap(List<double> data, string filePath, int rows = 10, int cols = 20, int scaleFactor = 50)
 
 
         {
@@ -494,7 +495,7 @@ namespace NeoCortex
 
         }
 
-    
+
 
         //Heat Color Function
         private static Color GetHeatColor(double value)
@@ -1016,4 +1017,3 @@ namespace NeoCortex
         }
     }
 }
-
