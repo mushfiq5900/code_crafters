@@ -453,7 +453,7 @@ namespace NeoCortex
 
 
         //DrawBit Heatmap Function
-        public static void DrawBitHeatmap(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 80)
+        public static void DrawBitHeatmap(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 50)
 
 
         {
@@ -498,25 +498,27 @@ namespace NeoCortex
 
 
         //Heat Color Function
-        private static Color GetHeatColor(double value)
-        {
-            int r = 0, g = 0, b = 0;
-            if (value >= 0.5)
-            {
-                double ratio = (value - 0.5) * 2;
-                r = 255;
-                g = (int)(255 * (1 - ratio));
-                b = 0;
-            }
-            else
-            {
-                double ratio = value * 2;
-                r = (int)(255 * ratio);
-                g = 255;
-                b = 0;
-            }
-            return Color.FromArgb(r, g, b);
-        }
+        private static Color GetHeatColor(double value) { return Color.FromArgb((int)(255 * value), (int)(128 * value), (int)(255 * (1 - value))); }
+
+        //private static Color GetHeatColor(double value)
+        //{
+        //    int r = 0, g = 0, b = 0;
+        //    if (value >= 0.5)
+        //    {
+        //        double ratio = (value - 0.5) * 2;
+        //        r = 255;
+        //        g = (int)(255 * (1 - ratio));
+        //        b = 0;
+        //    }
+        //    else
+        //    {
+        //        double ratio = value * 2;
+        //        r = (int)(255 * ratio);
+        //        g = 255;
+        //        b = 0;
+        //    }
+        //    return Color.FromArgb(r, g, b);
+        //}
 
 
 
