@@ -408,8 +408,8 @@ namespace NeoCortex
                     }
                 }
             }
-
-            myBitmap.Save(filePath, ImageFormat.Png);
+            myBitmap.Save(filePath, ImageFormat.Jpeg);
+            //myBitmap.Save(filePath, ImageFormat.Png);
         }
 
         //Saving Heatmap Values as Image
