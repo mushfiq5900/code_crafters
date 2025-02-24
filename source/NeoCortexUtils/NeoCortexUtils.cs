@@ -408,8 +408,8 @@ namespace NeoCortex
                     }
                 }
             }
-            myBitmap.Save(filePath, ImageFormat.Jpeg);
-            //myBitmap.Save(filePath, ImageFormat.Png);
+
+            myBitmap.Save(filePath, ImageFormat.Png);
         }
 
         //Saving Heatmap Values as Image
@@ -429,7 +429,7 @@ namespace NeoCortex
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
                 graphics.Clear(Color.White);
-                Font font = new Font("Arial", scaleFactor / 2, FontStyle.Bold);
+                Font font = new Font("Arial", scaleFactor / 3, FontStyle.Regular);
                 Brush textBrush = Brushes.Black;
                 for (int i = 0; i < rows; i++)
                 {
@@ -443,7 +443,7 @@ namespace NeoCortex
                         graphics.DrawString(text, font, textBrush, new PointF(x, y));
                     }
                 }
-                bitmap.Save(filePath, ImageFormat.Png);
+                bitmap.Save(filePath, ImageFormat.Jpeg);
             }
         }
 
@@ -498,28 +498,28 @@ namespace NeoCortex
 
 
         //Heat Color Function
-        private static Color GetHeatColor(double value)
-        {
-            int r = 0, g = 0, b = 0;
-            if (value >= 0.5)
-            {
-                double ratio = (value - 0.5) * 2;
-                r = 255;
-                g = (int)(255 * (1 - ratio));
-                b = 0;
-            }
-            else
-            {
-                double ratio = value * 2;
-                r = (int)(255 * ratio);
-                g = 255;
-                b = 0;
-            }
-            return Color.FromArgb(r, g, b);
-        }
+        //private static Color GetHeatColor(double value)
+        //{
+        //    int r = 0, g = 0, b = 0;
+        //    if (value >= 0.5)
+        //    {
+        //        double ratio = (value - 0.5) * 2;
+        //        r = 255;
+        //        g = (int)(255 * (1 - ratio));
+        //        b = 0;
+        //    }
+        //    else
+        //    {
+        //        double ratio = value * 2;
+        //        r = (int)(255 * ratio);
+        //        g = 255;
+        //        b = 0;
+        //    }
+        //    return Color.FromArgb(r, g, b);
+        //}
 
 
-
+        private static Color GetHeatColor(double value) { int c = (int)(255 * value); return Color.FromArgb(c, c, c); }
 
 
 
