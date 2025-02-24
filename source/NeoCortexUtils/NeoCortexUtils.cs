@@ -453,7 +453,7 @@ namespace NeoCortex
 
 
         //DrawBit Heatmap Function
-        public static void DrawBitHeatmap(List<double> data, string filePath, int rows = 20, int cols =10, int scaleFactor = 50)
+        public static void DrawBitHeatmap(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 80)
 
 
         {
@@ -489,7 +489,7 @@ namespace NeoCortex
                         }
                     }
                 }
-                bitmap.Save(filePath, ImageFormat.Jpeg);
+                bitmap.Save(filePath, ImageFormat.Png);
 
             }
 
