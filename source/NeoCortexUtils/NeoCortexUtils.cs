@@ -436,7 +436,7 @@ namespace NeoCortex
                     for (int j = 0; j < cols; j++)
                     {
                         int index = i * cols + j;
-                        double normalized = (data[index] - minVal) / (maxVal - minVal);
+                        double normalized = (data[index] - minVal) / ((maxVal - minVal) + 0.0001);
                         string text = normalized.ToString("F1");
                         int x = j * scaleFactor + 5;
                         int y = i * scaleFactor + 5;
@@ -446,7 +446,6 @@ namespace NeoCortex
                 bitmap.Save(filePath, ImageFormat.Png);
             }
         }
-
 
 
 
