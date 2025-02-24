@@ -429,7 +429,7 @@ namespace NeoCortex
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
                 graphics.Clear(Color.White);
-                Font font = new Font("Arial", scaleFactor / 3, FontStyle.Regular);
+                Font font = new Font("Arial", scaleFactor / 2, FontStyle.Bold);
                 Brush textBrush = Brushes.Black;
                 for (int i = 0; i < rows; i++)
                 {
