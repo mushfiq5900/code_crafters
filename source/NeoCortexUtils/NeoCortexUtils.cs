@@ -489,7 +489,7 @@ namespace NeoCortex
                         }
                     }
                 }
-                bitmap.Save(filePath, ImageFormat.Png);
+                bitmap.Save(filePath, ImageFormat.Jpeg);
 
             }
 
