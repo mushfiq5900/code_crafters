@@ -498,7 +498,12 @@ namespace NeoCortex
 
 
         //Heat Color Function
-        private static Color GetHeatColor(double value) { return Color.FromArgb((int)(255 * value), (int)(128 * value), (int)(255 * (1 - value))); }
+        private static Color GetGrayscaleColor(double value)
+        {
+            int gray = (int)(255 * value);
+            return Color.FromArgb(gray, gray, gray);
+        }
+
 
         //private static Color GetHeatColor(double value)
         //{
