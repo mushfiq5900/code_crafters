@@ -443,7 +443,7 @@ namespace NeoCortex
                         graphics.DrawString(text, font, textBrush, new PointF(x, y));
                     }
                 }
-                bitmap.Save(filePath, ImageFormat.Png);
+                bitmap.Save(filePath, ImageFormat.jpeg);
             }
         }
 
