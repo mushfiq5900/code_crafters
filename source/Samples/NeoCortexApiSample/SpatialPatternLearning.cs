@@ -390,6 +390,11 @@ namespace NeoCortexApiSample
 
             foreach (var values in heatmapData)
 
+            {
+                // Define the folder path from the current Directory
+                string folderPath = Path.Combine(Environment.CurrentDirectory, "Matrics");
+
+
 
                 public static void DrawSimilarityPlots(List<double[]> similaritiesList)
         {
