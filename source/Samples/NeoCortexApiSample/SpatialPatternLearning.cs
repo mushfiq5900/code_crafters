@@ -393,6 +393,11 @@ namespace NeoCortexApiSample
             {
                 // Define the folder path from the current Directory
                 string folderPath = Path.Combine(Environment.CurrentDirectory, "Matrics");
+                // Create the folder if it doesn't exist
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
 
 
 
