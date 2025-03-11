@@ -385,9 +385,13 @@ namespace NeoCortexApiSample
 
 
         private void GenerateMatrics(List<List<double>> heatmapData)
+        {
+            int i = 1;
+
+            foreach (var values in heatmapData)
 
 
-        public static void DrawSimilarityPlots(List<double[]> similaritiesList)
+                public static void DrawSimilarityPlots(List<double[]> similaritiesList)
         {
             // Combine all similarities from the list of arrays
             List<double> combinedSimilarities = new List<double>();
