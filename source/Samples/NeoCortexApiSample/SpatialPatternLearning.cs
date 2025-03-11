@@ -416,6 +416,8 @@ namespace NeoCortexApiSample
                     Debug.WriteLine("Data does not match expected size of 8x25.");
                     continue;  // Skip this row if data doesn't match
                 }
+                // Create a heatmap for the data
+                NeoCortexUtils.SaveHeatmapValuesAsImage(values, filePath, rows, cols, 50);
 
 
 
