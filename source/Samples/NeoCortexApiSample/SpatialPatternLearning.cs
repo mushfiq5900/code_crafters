@@ -410,6 +410,12 @@ namespace NeoCortexApiSample
                 int rows = 8;
                 int cols = 25;
 
+                // Check if the number of values matches the expected size (8x25)
+                if (values.Count != rows * cols)
+                {
+                    Debug.WriteLine("Data does not match expected size of 8x25.");
+                    continue;  // Skip this row if data doesn't match
+                }
 
 
 
