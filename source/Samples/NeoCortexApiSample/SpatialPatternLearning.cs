@@ -405,6 +405,12 @@ namespace NeoCortexApiSample
                 // Debugging the FilePath
                 Debug.WriteLine($"FilePath: {filePath}");
 
+                // Assuming the input data should be in an 8x25 matrix (rows x columns)
+                // Convert the current row to a 2D array (8x25) directly
+                int rows = 8;
+                int cols = 25;
+
+
 
 
 
