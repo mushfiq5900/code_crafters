@@ -416,13 +416,22 @@ namespace NeoCortexApiSample
                     Debug.WriteLine("Data does not match expected size of 8x25.");
                     continue;  // Skip this row if data doesn't match
                 }
+                
                 // Create a heatmap for the data
                 NeoCortexUtils.SaveHeatmapValuesAsImage(values, filePath, rows, cols, 50);
 
+                // Debugging the Message
+                Debug.WriteLine($"Heatmap {i} generated and saved successfully.");
+
+                i++;
+            }
+        }
 
 
 
-                public static void DrawSimilarityPlots(List<double[]> similaritiesList)
+
+
+        public static void DrawSimilarityPlots(List<double[]> similaritiesList)
         {
             // Combine all similarities from the list of arrays
             List<double> combinedSimilarities = new List<double>();
