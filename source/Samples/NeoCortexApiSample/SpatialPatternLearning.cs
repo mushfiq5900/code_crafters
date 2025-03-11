@@ -384,6 +384,7 @@ namespace NeoCortexApiSample
         /// </remarks>
 
 
+        private void GenerateMatrics(List<List<double>> heatmapData)
 
 
         public static void DrawSimilarityPlots(List<double[]> similaritiesList)
