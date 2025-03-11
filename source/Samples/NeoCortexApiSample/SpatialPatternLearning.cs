@@ -398,6 +398,8 @@ namespace NeoCortexApiSample
                 {
                     Directory.CreateDirectory(folderPath);
                 }
+                // Define the file path with the folder path
+                string filePath = Path.Combine(folderPath, $"heatmap_{i}.png");
 
 
 
