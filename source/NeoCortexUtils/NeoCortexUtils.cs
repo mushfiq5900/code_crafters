@@ -413,7 +413,7 @@ namespace NeoCortex
         }
 
         //Saving Heatmap Values as Image
-        public static void SaveHeatmapValuesAsImage(List<double> data, string filePath, int rows = 10, int cols = 20, int scaleFactor = 50)
+        public static void SaveHeatmapValuesAsImage(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 50)
         {
             if (data == null || data.Count == 0)
                 throw new ArgumentException("Heatmap data is empty.");
@@ -438,12 +438,12 @@ namespace NeoCortex
                         int index = i * cols + j;
                         double normalized = (data[index] - minVal) / (maxVal - minVal);
                         string text = normalized.ToString("F1");
-                        int x = j * scaleFactor + 5;
+                        int x = j * scaleFactor + 4;
                         int y = i * scaleFactor + 5;
                         graphics.DrawString(text, font, textBrush, new PointF(x, y));
                     }
                 }
-                bitmap.Save(filePath, ImageFormat.jpeg);
+                bitmap.Save(filePath, ImageFormat.Png);
             }
         }
 
@@ -501,7 +501,7 @@ namespace NeoCortex
         private static Color GetHeatColor(double value)
         {
             int r = 0, g = 0, b = 0;
-            if (value >= 0.7)
+            if (value >= 0.5)
             {
                 double ratio = (value - 0.5) * 2;
                 r = 255;
