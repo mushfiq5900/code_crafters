@@ -413,7 +413,7 @@ namespace NeoCortex
         }
 
         //Saving Heatmap Values as Image
-        public static void SaveHeatmapValuesAsImage(List<double> data, string filePath, int rows = 25, int cols = 8, int scaleFactor = 50)
+        public static void SaveHeatmapValuesAsImage(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 60)
         {
             if (data == null || data.Count == 0)
                 throw new ArgumentException("Heatmap data is empty.");
@@ -429,7 +429,7 @@ namespace NeoCortex
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
                 graphics.Clear(Color.White);
-                Font font = new Font("Arial", scaleFactor / 1, FontStyle.Regular);
+                Font font = new Font("Arial", scaleFactor / 3, FontStyle.Regular);
                 Brush textBrush = Brushes.Black;
                 for (int i = 0; i < rows; i++)
                 {
