@@ -439,7 +439,7 @@ namespace NeoCortex
                         double normalized = (data[index] - minVal) / (maxVal - minVal);
                         string text = normalized.ToString("F1");
                         int x = j * scaleFactor + 4;
-                        int y = i * scaleFactor + 4;
+                        int y = i * scaleFactor + 2;
                         graphics.DrawString(text, font, textBrush, new PointF(x, y));
                     }
                 }
@@ -453,12 +453,10 @@ namespace NeoCortex
 
 
         //DrawBit Heatmap Function
-        public static void DrawBitHeatmap(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 40)
+        public static void DrawBitHeatmap(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 50)
+
 
         {
-            if (scaleFactor < 30)
-                throw new ArgumentException("Scale factor must be at least 10.");
-
             if (data == null || data.Count == 0)
                 throw new ArgumentException("Heatmap data is empty.");
 
