@@ -438,7 +438,7 @@ namespace NeoCortex
                         int index = i * cols + j;
                         double normalized = (data[index] - minVal) / (maxVal - minVal);
                         string text = normalized.ToString("F1");
-                        int x = j * scaleFactor + 4;
+                        int x = j * scaleFactor + 2;
                         int y = i * scaleFactor + 2;
                         graphics.DrawString(text, font, textBrush, new PointF(x, y));
                     }
