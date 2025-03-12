@@ -456,7 +456,7 @@ namespace NeoCortex
         public static void DrawBitHeatmap(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 40)
 
         {
-            if (scaleFactor < 10)
+            if (scaleFactor < 30)
                 throw new ArgumentException("Scale factor must be at least 10.");
 
             if (data == null || data.Count == 0)
