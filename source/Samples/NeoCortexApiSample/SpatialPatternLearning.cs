@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Reflection;
 
 namespace NeoCortexApiSample
 {
@@ -167,7 +169,7 @@ namespace NeoCortexApiSample
             }
 
             // Learning process will take 1000 iterations (cycles)
-            int maxSPLearningCycles = 150;
+            int maxSPLearningCycles = 100;
 
             int numStableCycles = 0;
 
@@ -243,98 +245,83 @@ namespace NeoCortexApiSample
         {
             // Initialize a list to get heatmap data for all input values.
             List<List<double>> heatmapData = new List<List<double>>();
-
             // Initialize a list to get normalized permanence values.
             List<int[]> normalizedPermanence = new List<int[]>();
-
             // Initialize a list to get normalized permanence values.
             List<int[]> encodedInputs = new List<int[]>();
-
             // Initialize a list to measure the similarities.
             List<double[]> similarityList = new List<double[]>();
 
-            // Loop through each input value in the list of input values.
+            // Define directory path
+            string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Heatmaps");
+
+            // Ensure directory exists
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
             foreach (var input in inputValues)
             {
-                // Encode the current input value using the provided encoder, resulting in an SDR
                 var inpSdr = encoder.Encode(input);
-
-                // Compute the active columns in the spatial pooler for the given input SDR, without learning.
                 var actCols = sp.Compute(inpSdr, false);
-
-                // Reconstruct the permanence values for the active columns.
                 Dictionary<int, double> reconstructedPermanence = sp.Reconstruct(actCols);
-
-                // Define the maximum number of inputs (Same size of encoded Inputs) to consider.
                 int maxInput = inpSdr.Length;
-
-                // Initialize a dictionary to hold all permanence values, including those not reconstructed becuase of Inactive columns.
                 Dictionary<int, double> allPermanenceDictionary = new Dictionary<int, double>();
 
-                // Populate the all permanence dictionary with reconstructed permanence values.
                 foreach (var kvp in reconstructedPermanence)
                 {
-                    int inputIndex = kvp.Key;
-
-                    double probability = kvp.Value;
-
-                    allPermanenceDictionary[inputIndex] = probability;
-
+                    allPermanenceDictionary[kvp.Key] = kvp.Value;
                 }
-                // Ensure that all input indices up to the maximum are represented in the dictionary, even if their permanence is 0.
+
                 for (int inputIndex = 0; inputIndex < maxInput; inputIndex++)
                 {
-
-                    if (!reconstructedPermanence.ContainsKey(inputIndex))
+                    if (!allPermanenceDictionary.ContainsKey(inputIndex))
                     {
-
                         allPermanenceDictionary[inputIndex] = 0.0;
                     }
                 }
-                // Sort the dictionary by keys
+
                 var sortedAllPermanenceDictionary = allPermanenceDictionary.OrderBy(kvp => kvp.Key);
-
-                // Convert the sorted dictionary of all permanences to a list
                 List<double> permanenceValuesList = sortedAllPermanenceDictionary.Select(kvp => kvp.Value).ToList();
-
                 heatmapData.Add(permanenceValuesList);
 
-                // Output debug information showing the input value and its corresponding SDR as a string.
                 Debug.WriteLine($"Input: {input} SDR: {Helpers.StringifyVector(actCols)}");
 
-
-
-
-
-
-                //PermanenceValues for each inputs
-                Debug.WriteLine($"Input: {input} SDR: {Helpers.StringifyDictionarybykeys(allPermanenceDictionary)}");
-
-
-
-                // Define a threshold value for normalizing permanences, this value provides best Reconstructed Input
                 var ThresholdValue = 8.3;
-
-                // Normalize permanences (0 and 1) based on the threshold value and convert them to a list of integers.
                 List<int> normalizePermanenceList = Helpers.ThresholdingProbabilities(permanenceValuesList, ThresholdValue);
-
-                // Add the normalized permanences to the list of all normalized permanences.
                 normalizedPermanence.Add(normalizePermanenceList.ToArray());
-
-                // Add the encoded bits to the list of all original encoded Inputs.
                 encodedInputs.Add(inpSdr);
 
-                //Calling JaccardSimilarityofBinaryArrays function to measure the similarities
                 var similarity = MathHelpers.JaccardSimilarityofBinaryArrays(inpSdr, normalizePermanenceList.ToArray());
                 double[] similarityArray = new double[] { similarity };
-                // Add the Similarity Arrays to the list.
                 similarityList.Add(similarityArray);
             }
-            // Generate 1D heatmaps using the heatmap data and the normalized permanences To plot Heatmap, Encoded Inputs and Normalize Image combined.
-            Generate1DHeatmaps(heatmapData, normalizedPermanence, encodedInputs);
-            // Plotting Graphs to Visualize Smililarities of Encoded Inputs and Reconstructed Inputs
+
+            // Generate heatmaps for all collected data
+            int rows = 8; // Example, adjust according to your experiment
+            int cols = 25; // Example, adjust according to your experiment
+            int scaleFactor = 50; // Example, adjust according to your experiment
+
+            int index = 1; // Start index to differentiate heatmaps
+            foreach (var values in heatmapData)
+            {
+                // Define the unique file path for each heatmap
+                string filePath = Path.Combine(directoryPath, $"heatmap_{index}.png");
+                Debug.WriteLine($"Saving heatmap to: {filePath}");
+
+                // Call the heatmap function here for each values set
+                NeoCortexUtils.DrawBitHeatmap(values, filePath, rows, cols, scaleFactor);
+
+                index++; // Increment index for the next heatmap file name
+            }
+
+            // Draw similarity plots
             DrawSimilarityPlots(similarityList);
+
+            Console.WriteLine("All heatmaps generated and similarity plots saved.");
         }
+
 
         /// <summary>
         /// Generates 1D heatmaps based on the provided heatmap data and normalized permanence values (Combined Image), and saves them to local Drive.
