@@ -299,8 +299,8 @@ namespace NeoCortexApiSample
             }
 
             // Generate heatmaps for all collected data
-            int rows = 25; // Example, adjust according to your experiment
-            int cols = 8; // Example, adjust according to your experiment
+            int rows = 8; // Example, adjust according to your experiment
+            int cols = 25; // Example, adjust according to your experiment
             int scaleFactor = 50; // Example, adjust according to your experiment
 
             int index = 1; // Start index to differentiate heatmaps
