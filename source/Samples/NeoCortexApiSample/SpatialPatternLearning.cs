@@ -299,22 +299,22 @@ namespace NeoCortexApiSample
             }
 
             // Generate heatmaps for all collected data
-            int rows = 8; // Example, adjust according to your experiment
-            int cols = 25; // Example, adjust according to your experiment
+            int rows = 25; // Example, adjust according to your experiment
+            int cols = 8; // Example, adjust according to your experiment
             int scaleFactor = 50; // Example, adjust according to your experiment
 
             int index = 1; // Start index to differentiate heatmaps
-            foreach (var values in heatmapData)
-            {
-                // Define the unique file path for each heatmap
-                string filePath = Path.Combine(directoryPath, $"heatmap_{index}.png");
-                Debug.WriteLine($"Saving heatmap to: {filePath}");
+            //foreach (var values in heatmapData)
+            //{
+            //    // Define the unique file path for each heatmap
+            //    string filePath = Path.Combine(directoryPath, $"heatmap_{index}.png");
+            //    Debug.WriteLine($"Saving heatmap to: {filePath}");
 
-                // Call the heatmap function here for each values set
-                NeoCortexUtils.DrawBitHeatmap(values, filePath, rows, cols, scaleFactor);
+            //    // Call the heatmap function here for each values set
+            //    NeoCortexUtils.DrawBitHeatmap(values, filePath, rows, cols, scaleFactor);
 
-                index++; // Increment index for the next heatmap file name
-            }
+            //    index++; // Increment index for the next heatmap file name
+            //}
 
             // Draw similarity plots
             DrawSimilarityPlots(similarityList);
