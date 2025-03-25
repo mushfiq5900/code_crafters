@@ -48,7 +48,7 @@ namespace NeoCortexApiSample
                 NumActiveColumnsPerInhArea = 0.02 * numColumns,
                 PotentialRadius = (int)(0.15 * inputBits),
                 LocalAreaDensity = -1,
-                ActivationThreshold = 8,
+                ActivationThreshold = 10,
 
                 MaxSynapsesPerSegment = (int)(0.01 * numColumns),
                 Random = new ThreadSafeRandom(42),
@@ -169,7 +169,7 @@ namespace NeoCortexApiSample
             }
 
             // Learning process will take 1000 iterations (cycles)
-            int maxSPLearningCycles = 500;
+            int maxSPLearningCycles = 700;
 
             int numStableCycles = 0;
 
