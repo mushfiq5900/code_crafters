@@ -518,6 +518,11 @@ namespace NeoCortex
             return Color.FromArgb(r, g, b);
         }
 
+        private static Color GetGrayscaleColor(double value)
+        {
+            int gray = (int)(255 * value);
+            return Color.FromArgb(gray, gray, gray);
+        }
 
 
 
