@@ -48,7 +48,7 @@ namespace NeoCortexApiSample
                 NumActiveColumnsPerInhArea = 0.02 * numColumns,
                 PotentialRadius = (int)(0.15 * inputBits),
                 LocalAreaDensity = -1,
-                ActivationThreshold = 10,
+                ActivationThreshold = 8,
 
                 MaxSynapsesPerSegment = (int)(0.01 * numColumns),
                 Random = new ThreadSafeRandom(42),
