@@ -5,6 +5,7 @@ using Daenet.ImageBinarizerLib.Entities;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -351,7 +352,53 @@ namespace NeoCortex
         }
 
 
+        public static void GenarateReconstrucetedBinarizedImage(int[] inputVector, string imageName, int width = 52, int height = 52, int rescalingFactor = 30)
+        {
+            string folderPath = Path.Combine(Environment.CurrentDirectory, "ReconstructedImageOutput");
 
+            // Ensure the folder exists
+            Directory.CreateDirectory(folderPath);
+
+            string filename = Path.Combine(folderPath, $"{imageName}.png");
+
+            int imgWidth = width * rescalingFactor;
+            int imgHeight = height * rescalingFactor;
+
+            // Create a new Bitmap for the rescaled image
+            using (Bitmap bmp = new Bitmap(imgWidth, imgHeight))
+            {
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    g.Clear(Color.White); // Set background to white
+
+                    // Use a fixed font size
+                    float fontSize = rescalingFactor; // Ensuring text fills each grid cell properly
+                    using (Font font = new Font("Arial", fontSize, FontStyle.Bold))
+                    using (Brush brush = new SolidBrush(Color.Black))
+                    {
+                        for (int y = 0; y < height; y++)
+                        {
+                            for (int x = 0; x < width; x++)
+                            {
+                                int pixelIndex = y * width + x;
+                                string text = inputVector[pixelIndex].ToString(); // "0" or "1"
+
+                                // Position text in the center of each cell
+                                float xPos = x * rescalingFactor;
+                                float yPos = y * rescalingFactor;
+
+                                g.DrawString(text, font, brush, xPos, yPos);
+                            }
+                        }
+                    }
+                }
+
+                // Save the image to the file system
+                bmp.Save(filename, ImageFormat.Png);
+            }
+
+            Console.WriteLine($"Image saved to: {filename}");
+        }
 
         /// <summary>
         /// Drawas bitmaps from list of arrays.
@@ -447,6 +494,106 @@ namespace NeoCortex
             }
         }
 
+
+        public static void SaveInputValuesAsImage(List<int> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 50)
+        {
+            if (data == null || data.Count == 0)
+                throw new ArgumentException("Heatmap data is empty.");
+
+            if (data.Count != rows * cols)
+                throw new ArgumentException($"Data length does not match the expected {rows}x{cols} matrix size.");
+
+            int imgWidth = cols * scaleFactor;
+            int imgHeight = rows * scaleFactor;
+
+            using (Bitmap bitmap = new Bitmap(imgWidth, imgHeight))
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.White);
+                Font font = new Font("Arial", scaleFactor / 3, FontStyle.Regular);
+                Brush textBrush = Brushes.Black;
+
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        int index = i * cols + j;
+                        string text = data[index].ToString();  // Keeps integer representation
+                        int x = j * scaleFactor + 5;
+                        int y = i * scaleFactor + 5;
+                        graphics.DrawString(text, font, textBrush, new PointF(x, y));
+                    }
+                }
+
+                bitmap.Save(filePath, ImageFormat.Png);
+            }
+        }
+
+
+
+        public static void GenarateImageInputHeatmap(List<List<double>> heatmapData, string imageName, int gridSize = 52, int rescalingFactor = 40)
+        {
+            string folderPath = Path.Combine(Environment.CurrentDirectory, "PermanenceHeatmaps");
+            Directory.CreateDirectory(folderPath); // Ensure folder exists
+
+            int imgWidth = gridSize * rescalingFactor;
+            int imgHeight = gridSize * rescalingFactor;
+
+            Font font = new Font("Arial", rescalingFactor / 3, FontStyle.Bold); // Adjusted text size if needed
+            Brush textBrush = Brushes.White; // Changed to white
+
+            for (int idx = 0; idx < heatmapData.Count; idx++)
+            {
+                var permanenceValues = heatmapData[idx];
+                double maxPermanence = permanenceValues.Max();
+
+                string filePath = Path.Combine(folderPath, $"{imageName}cycle{idx}.png");
+
+                using (Bitmap bmp = new Bitmap(imgWidth, imgHeight))
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    g.Clear(Color.White); // Set background to white
+
+                    for (int y = 0; y < gridSize; y++)
+                    {
+                        for (int x = 0; x < gridSize; x++)
+                        {
+                            int pixelIndex = y * gridSize + x;
+                            if (pixelIndex >= permanenceValues.Count) continue;
+
+                            double permanence = permanenceValues[pixelIndex];
+                            double normalizedPermanence = permanence / maxPermanence;
+
+                            // *Color Interpolation (Green -> Yellow -> Red)*
+                            int red = (int)(255 * normalizedPermanence);
+                            int green = (int)(255 * (1 - normalizedPermanence));
+                            Color pixelColor = Color.FromArgb(red, green, 0);
+
+                            float xPos = x * rescalingFactor;
+                            float yPos = y * rescalingFactor;
+
+                            // *Draw heatmap cell*
+                            using (SolidBrush brush = new SolidBrush(pixelColor))
+                            {
+                                g.FillRectangle(brush, xPos, yPos, rescalingFactor, rescalingFactor);
+                            }
+
+                            // *Draw permanence value inside cell (No grid outline)*
+                            string valueText = $"{permanence:F1}"; // Only one decimal place
+                            SizeF textSize = g.MeasureString(valueText, font);
+                            float textX = xPos + (rescalingFactor - textSize.Width) / 2;
+                            float textY = yPos + (rescalingFactor - textSize.Height) / 2;
+                            g.DrawString(valueText, font, textBrush, textX, textY);
+                        }
+                    }
+
+                    // Save image
+                    bmp.Save(filePath, ImageFormat.Png);
+                }
+
+                Debug.WriteLine($"Saved heatmap for cycle {idx}: {filePath}");
+            }
+        }
 
 
 

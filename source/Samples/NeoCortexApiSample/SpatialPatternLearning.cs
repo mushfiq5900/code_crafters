@@ -169,13 +169,13 @@ namespace NeoCortexApiSample
             }
 
             // Learning process will take 1000 iterations (cycles)
-            int maxSPLearningCycles = 100;
+            int maxSPLearningCycles = 5;
 
             int numStableCycles = 0;
 
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)
             {
-                Debug.WriteLine($"Cycle  ** {cycle} ** Stability: {isInStableState}");
+                Debug.WriteLine($"Cycle  * {cycle} * Stability: {isInStableState}");
 
                 //
                 // This trains the layer on input pattern.
@@ -237,19 +237,12 @@ namespace NeoCortexApiSample
         /// <para>Adds normalized permanences to a list.</para>
         /// <para>Calls a method to generate 1D heatmaps using the heatmap data and normalized permanences.</para>
         /// </remarks>
-
-
-
         // Define a method to run the restructuring experiment, which takes a spatial pooler, an encoder, and a list of input values as arguments.
         private void RunRustructuringExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues)
         {
-            // Initialize a list to get heatmap data for all input values.
             List<List<double>> heatmapData = new List<List<double>>();
-            // Initialize a list to get normalized permanence values.
             List<int[]> normalizedPermanence = new List<int[]>();
-            // Initialize a list to get normalized permanence values.
             List<int[]> encodedInputs = new List<int[]>();
-            // Initialize a list to measure the similarities.
             List<double[]> similarityList = new List<double[]>();
 
             // Define directory path
@@ -318,59 +311,12 @@ namespace NeoCortexApiSample
 
             // Draw similarity plots
             DrawSimilarityPlots(similarityList);
+            GenerateMatrics(heatmapData);
+            GenerateEncodedMatrics(encodedInputs.Select(arr => arr.ToList()).ToList());
+            GenerateReconstructedMatrics(normalizedPermanence.Select(arr => arr.ToList()).ToList());
 
             Console.WriteLine("All heatmaps generated and similarity plots saved.");
         }
-
-
-        /// <summary>
-        /// Generates 1D heatmaps based on the provided heatmap data and normalized permanence values (Combined Image), and saves them to local Drive.
-        /// </summary>
-        /// <param name="heatmapData">A list containing the heatmap data for each input value.</param>
-        /// <param name="normalizedPermanence">A list containing the normalized permanence values for each input value.</param>
-        private void Generate1DHeatmaps(List<List<double>> heatmapData, List<int[]> normalizedPermanence, List<int[]> encodedInputs)
-        {
-            int i = 1;
-
-            foreach (var values in heatmapData)
-            {
-                // Define the folder path from current Directory
-                string folderPath = Path.Combine(Environment.CurrentDirectory, "1DHeatMap");
-
-                // Create the folder if it doesn't exist
-                if (!Directory.Exists(folderPath))
-                {
-                    Directory.CreateDirectory(folderPath);
-                }
-
-                // Define the file path with the folder path
-                string filePath = Path.Combine(folderPath, $"heatmap_{i}.png");
-                //Debugging the Filepath
-                Debug.WriteLine($"FilePath: {filePath}");
-
-                // Convert the Values to a 1D array using ToArray
-                double[] array1D = values.ToArray();
-
-                // Call the Draw1DHeatmap function with the dynamically generated file path
-                NeoCortexUtils.Draw1dHeatmap(new List<double[]>() { array1D }, new List<int[]>() { normalizedPermanence[i - 1] }, new List<int[]>() { encodedInputs[i - 1] }, filePath, 200, 12, 9, 4, 0, 30);
-
-                //Debugging the Message
-                Debug.WriteLine("Heatmap generated and saved successfully.");
-                i++;
-            }
-        }
-
-        /// <summary>
-        /// Draws a combined similarity plot based on the list of similarity arrays.
-        /// </summary>
-        /// <param name="similaritiesList">The list of arrays containing similarity values to be combined and plotted.</param>
-        /// <remarks>
-        /// The method combines all similarity values from the list of arrays and generates a plot representing the combined data.
-        /// It creates a folder named "SimilarityPlots" in the current directory if it doesn't exist and saves the plot as a PNG image file named "combined_similarity_plot.png" within this folder.
-        /// Debugging information, including the generated file path and successful plot generation confirmation, is output using Debug.WriteLine.
-        /// </remarks>
-
-
         private void GenerateMatrics(List<List<double>> heatmapData)
         {
             int i = 1;
@@ -379,7 +325,7 @@ namespace NeoCortexApiSample
 
             {
                 // Define the folder path from the current Directory
-                string folderPath = Path.Combine(Environment.CurrentDirectory, "Matrics");
+                string folderPath = Path.Combine(Environment.CurrentDirectory, "HeatMapMatrics");
                 // Create the folder if it doesn't exist
                 if (!Directory.Exists(folderPath))
                 {
@@ -387,7 +333,7 @@ namespace NeoCortexApiSample
                 }
 
                 // Define the file path with the folder path
-                string filePath = Path.Combine(folderPath, $"heatmap_{i}.png");
+                string filePath = Path.Combine(folderPath, $"heatmapMatrix_{i}.png");
 
                 // Debugging the FilePath
                 Debug.WriteLine($"FilePath: {filePath}");
@@ -403,21 +349,100 @@ namespace NeoCortexApiSample
                     Debug.WriteLine("Data does not match expected size of 8x25.");
                     continue;  // Skip this row if data doesn't match
                 }
-                
+
                 // Create a heatmap for the data
                 NeoCortexUtils.SaveHeatmapValuesAsImage(values, filePath, rows, cols, 50);
 
                 // Debugging the Message
-                Debug.WriteLine($"Heatmap {i} generated and saved successfully.");
+                Debug.WriteLine($"Heatmap values {i} generated and saved successfully.");
 
                 i++;
             }
         }
+        private void GenerateEncodedMatrics(List<List<int>> encodedInputs)
+        {
+            int i = 1;
 
+            foreach (var inputs in encodedInputs)
 
+            {
+                // Define the folder path from the current Directory
+                string folderPath = Path.Combine(Environment.CurrentDirectory, "EncodedInputMatrics");
+                // Create the folder if it doesn't exist
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
 
+                // Define the file path with the folder path
+                string filePath = Path.Combine(folderPath, $"EncodedInputMatrics_{i}.png");
 
+                // Debugging the FilePath
+                Debug.WriteLine($"FilePath: {filePath}");
 
+                // Assuming the input data should be in an 8x25 matrix (rows x columns)
+                // Convert the current row to a 2D array (8x25) directly
+                int rows = 8;
+                int cols = 25;
+
+                // Check if the number of values matches the expected size (8x25)
+                if (inputs.Count != rows * cols)
+                {
+                    Debug.WriteLine("Data does not match expected size of 8x25.");
+                    continue;  // Skip this row if data doesn't match
+                }
+
+                // Create a heatmap for the data
+                NeoCortexUtils.SaveInputValuesAsImage(inputs, filePath, rows, cols, 50);
+
+                // Debugging the Message
+                Debug.WriteLine($"Encoded Matrix {i} generated and saved successfully.");
+
+                i++;
+            }
+        }
+        private void GenerateReconstructedMatrics(List<List<int>> normalizedPermanence)
+        {
+            int i = 1;
+
+            foreach (var reconstructedInputs in normalizedPermanence)
+
+            {
+                // Define the folder path from the current Directory
+                string folderPath = Path.Combine(Environment.CurrentDirectory, "NumericReconstrucedInputMatrics");
+                // Create the folder if it doesn't exist
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                // Define the file path with the folder path
+                string filePath = Path.Combine(folderPath, $"NumericReconstructedInputMatrics_{i}.png");
+
+                // Debugging the FilePath
+                Debug.WriteLine($"FilePath: {filePath}");
+
+                // Assuming the input data should be in an 8x25 matrix (rows x columns)
+                // Convert the current row to a 2D array (8x25) directly
+                int rows = 8;
+                int cols = 25;
+
+                // Check if the number of values matches the expected size (8x25)
+                if (reconstructedInputs.Count != rows * cols)
+                {
+                    Debug.WriteLine("Data does not match expected size of 8x25.");
+                    continue;  // Skip this row if data doesn't match
+                }
+
+                // Create a heatmap for the data
+                NeoCortexUtils.SaveInputValuesAsImage(reconstructedInputs, filePath, rows, cols, 50);
+
+                // Debugging the Message
+                Debug.WriteLine($"Encoded Matrix {i} generated and saved successfully.");
+
+                i++;
+            }
+        }
         public static void DrawSimilarityPlots(List<double[]> similaritiesList)
         {
             // Combine all similarities from the list of arrays
