@@ -460,7 +460,7 @@ namespace NeoCortex
         }
 
         //Saving Heatmap Values as Image
-        public static void SaveHeatmapValuesAsImage(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 70)
+        public static void SaveHeatmapValuesAsImage(List<double> data, string filePath, int rows = 8, int cols = 25, int scaleFactor = 50)
         {
             if (data == null || data.Count == 0)
                 throw new ArgumentException("Heatmap data is empty.");
@@ -476,7 +476,7 @@ namespace NeoCortex
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
                 graphics.Clear(Color.White);
-                Font font = new Font("Arial", scaleFactor / 5, FontStyle.Regular);
+                Font font = new Font("Arial", scaleFactor / 3, FontStyle.Regular);
                 Brush textBrush = Brushes.Black;
                 for (int i = 0; i < rows; i++)
                 {
@@ -533,14 +533,11 @@ namespace NeoCortex
 
         public static void GenarateImageInputHeatmap(List<List<double>> heatmapData, string imageName, int gridSize = 52, int rescalingFactor = 40)
         {
-            string folderPath = Path.Combine(Environment.CurrentDirectory, "PermanenceHeatmaps");
+            string folderPath = Path.Combine(Environment.CurrentDirectory, "ImageInputHeatmaps");
             Directory.CreateDirectory(folderPath); // Ensure folder exists
 
             int imgWidth = gridSize * rescalingFactor;
             int imgHeight = gridSize * rescalingFactor;
-
-            Font font = new Font("Arial", rescalingFactor / 3, FontStyle.Bold); // Adjusted text size if needed
-            Brush textBrush = Brushes.White; // Changed to white
 
             for (int idx = 0; idx < heatmapData.Count; idx++)
             {
@@ -577,13 +574,6 @@ namespace NeoCortex
                             {
                                 g.FillRectangle(brush, xPos, yPos, rescalingFactor, rescalingFactor);
                             }
-
-                            // *Draw permanence value inside cell (No grid outline)*
-                            string valueText = $"{permanence:F1}"; // Only one decimal place
-                            SizeF textSize = g.MeasureString(valueText, font);
-                            float textX = xPos + (rescalingFactor - textSize.Width) / 2;
-                            float textY = yPos + (rescalingFactor - textSize.Height) / 2;
-                            g.DrawString(valueText, font, textBrush, textX, textY);
                         }
                     }
 
@@ -594,6 +584,7 @@ namespace NeoCortex
                 Debug.WriteLine($"Saved heatmap for cycle {idx}: {filePath}");
             }
         }
+
 
 
 
@@ -665,11 +656,6 @@ namespace NeoCortex
             return Color.FromArgb(r, g, b);
         }
 
-        private static Color GetGrayscaleColor(double value)
-        {
-            int gray = (int)(255 * value);
-            return Color.FromArgb(gray, gray, gray);
-        }
 
 
 

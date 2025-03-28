@@ -12,22 +12,25 @@ namespace NeoCortexApiSample
 {
     internal class ImageBinarizerSpatialPattern
     {
+        // The prefix for input image filenames to process
         public string inputPrefix { get; private set; }
 
         /// <summary>
-        /// Implements an experiment that demonstrates how to learn spatial patterns.
-        /// SP will learn every presented Image input in multiple iterations.
+        /// The entry point for the Image Binarizer Spatial Pattern Experiment.
+        /// This method runs the experiment which learns spatial patterns and demonstrates how the Spatial Pooler (SP) learns from binarized images.
         /// </summary>
         public void Run()
         {
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(ImageBinarizerSpatialPattern)}");
 
+            // Experiment parameters
             double minOctOverlapCycles = 1.0;
             double maxBoost = 5.0;
             int numColumns = 84 * 84;
             int imageSize = 52;
             var colDims = new int[] { 84, 84 };
 
+            // Configuration for HTM (Hierarchical Temporal Memory)
             HtmConfig cfg = new HtmConfig(new int[] { imageSize, imageSize }, new int[] { numColumns })
             {
                 CellsPerColumn = 10,
@@ -51,20 +54,21 @@ namespace NeoCortexApiSample
             string binarizedFolder = "Binarized";         // Folder to save binarized images
             var trainingImages = Directory.GetFiles(trainingFolder, $"{inputPrefix}*.jpg");
             Debug.WriteLine($"[INFO] Found {trainingImages.Length} training images.");
-            // Run Experiment & get active columns per image
+
+            // Run Experiment and get active columns per image
             var (sp, activeColumnsPerImage) = RunExperiment(cfg, inputPrefix);
 
             // Run Reconstruction using precomputed active columns
             RunRustructuringExperiment(sp, activeColumnsPerImage, trainingImages);
         }
 
-
         /// <summary>
-        /// Implements the experiment.
+        /// Runs the main experiment to process the training images and train the Spatial Pooler (SP).
+        /// It iteratively learns spatial patterns from the binarized images and stores the active columns.
         /// </summary>
-        /// <param name="cfg"></param>
-        /// <param name="inputPrefix"> The name of the images</param>
-        /// <returns>The trained bersion of the SP.</returns>
+        /// <param name="cfg">The configuration for the HTM model.</param>
+        /// <param name="inputPrefix">The prefix for input image filenames to process.</param>
+        /// <returns>A tuple containing the trained Spatial Pooler and a list of active columns for each image.</returns>
         private (SpatialPooler, List<int[]>) RunExperiment(HtmConfig cfg, string inputPrefix)
         {
             Debug.WriteLine("[INFO] Initializing Experiment...");
@@ -76,7 +80,7 @@ namespace NeoCortexApiSample
             string binarizedFolder = "Binarized";         // Folder to save binarized images
             Directory.CreateDirectory(binarizedFolder);
 
-            var trainingImages = Directory.GetFiles(trainingFolder, $"{inputPrefix}*.jpeg");
+            var trainingImages = Directory.GetFiles(trainingFolder, $"{inputPrefix}*.jpg");
             Debug.WriteLine($"[INFO] Processing {trainingImages.Length} images...");
 
             int imgSize = 52;  // Resized image size
@@ -99,13 +103,14 @@ namespace NeoCortexApiSample
             int maxCycles = 10;
             int currentCycle = 0;
 
+            // Loop to train the model until stable state is reached
             while (!isInStableState && currentCycle < maxCycles)
             {
                 Debug.WriteLine($"Processing Training Cycle for each Image {currentCycle}");
 
                 foreach (var image in trainingImages)
                 {
-                    // *1. Binarize Image and Save*
+                    // 1. Binarize Image and Save
                     string binarizedFile = Path.Combine(binarizedFolder, $"{Path.GetFileNameWithoutExtension(image)}.txt");
                     if (!File.Exists(binarizedFile)) // Avoid reprocessing
                     {
@@ -113,7 +118,7 @@ namespace NeoCortexApiSample
                         File.Copy(generatedFile, binarizedFile, true);
                     }
 
-                    // *2. Read Binarized Image as Input Vector*
+                    // 2. Read Binarized Image as Input Vector
                     int[] inputVector = NeoCortexUtils.ReadCsvIntegers(binarizedFile).ToArray();
 
                     for (int cycle = 0; cycle < maxCycles; cycle++)
@@ -135,129 +140,126 @@ namespace NeoCortexApiSample
                 currentCycle++;
             }
 
-            // *3. Pass Active Columns to Reconstruction Experiment*
+            // Pass Active Columns to Reconstruction Experiment
             RunRustructuringExperiment(sp, activeColsList, trainingImages);
-
 
             return (sp, activeColsList);
         }
 
-
-
-
-
+        /// <summary>
+        /// Runs the reconstruction experiment using the trained Spatial Pooler (SP) and the active columns learned during the experiment.
+        /// This method reconstructs the permanence values for each image and generates heatmaps and similarity plots.
+        /// </summary>
+        /// <param name="sp">The trained Spatial Pooler.</param>
+        /// <param name="activeColsList">The list of active columns for each image.</param>
+        /// <param name="trainingImages">The training images used during the experiment.</param>
         private void RunRustructuringExperiment(SpatialPooler sp, List<int[]> activeColsList, string[] trainingImages)
         {
             List<int[]> normalizedPermanence = new List<int[]>();
-            List<double[]> similarityList = new List<double[]>();
-            foreach (var actcols in activeColsList)
+            Dictionary<string, double> highestSimilarityPerImage = new Dictionary<string, double>(); // Stores highest similarity for each image
+
+            int totalCycles = 1; // Number of cycles
+
+            for (int cycleIndex = 0; cycleIndex < totalCycles; cycleIndex++)
             {
-                Debug.WriteLine("Reconstructing permanence for SDR...");
-
-                // Reconstruct the permanence for the predicted SDR
-                Dictionary<int, double> reconstructedPermanence = sp.Reconstruct(actcols);
-
-                Dictionary<int, double> allPermanenceDictionary = new Dictionary<int, double>();
-                foreach (var kvp in reconstructedPermanence)
+                if (cycleIndex == totalCycles - 1) // Process only the last cycle
                 {
-                    //Debug.WriteLine($"Index: {kvp.Key}, Permanence Value: {kvp.Value}");
-                    allPermanenceDictionary[kvp.Key] = kvp.Value;
-                }
-
-                int imgsize = 52 * 52;
-
-                // Assign inactive columns permanence 0
-                for (int inputIndex = 0; inputIndex < imgsize; inputIndex++)
-                {
-                    if (!reconstructedPermanence.ContainsKey(inputIndex))
+                    foreach (var actcols in activeColsList)
                     {
-                        allPermanenceDictionary[inputIndex] = 0.0;
-                    }
-                }
+                        Debug.WriteLine("Reconstructing permanence for SDR...");
 
-                // Normalize permanence values
-                var ThresholdValue = 67.0;
-                List<double> permanenceValuesList = allPermanenceDictionary.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList();
-                Debug.WriteLine($"[INFO] Applying Threshold for Nomalizing the Permanence Values");
-                List<int> normalizePermanenceList = Helpers.ThresholdingProbabilities(permanenceValuesList, ThresholdValue);
+                        // Reconstruct permanence for SDR
+                        Dictionary<int, double> reconstructedPermanence = sp.Reconstruct(actcols);
+                        Dictionary<int, double> allPermanenceDictionary = new Dictionary<int, double>();
 
-                normalizedPermanence.Add(normalizePermanenceList.ToArray());
-
-                // Define a unique image index for consistency
-                int imageIndex = activeColsList.IndexOf(actcols);
-
-                // Generate consistent names for both images
-                string reconstructedImageName = $"ReconstructedImage_{imageIndex}";
-                string heatmapImageName = $"Heatmap_{imageIndex}";
-
-                // Save the reconstructed binary image
-                NeoCortexUtils.GenarateReconstrucetedBinarizedImage(normalizePermanenceList.ToArray(), reconstructedImageName);
-
-                // *Save heatmap per cycle*
-                List<List<double>> heatmapData = new List<List<double>> { permanenceValuesList }; // Use sorted permanence
-                string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Heatmaps");
-                Directory.CreateDirectory(folderPath);
-                string heatmapFilePath = Path.Combine(folderPath, $"{heatmapImageName}.png");
-
-                NeoCortexUtils.GenarateImageInputHeatmap(heatmapData, heatmapFilePath);
-
-
-                for (int i = 0; i < trainingImages.Length; i++)
-                {
-                    string imageName = Path.GetFileNameWithoutExtension(trainingImages[i]);  // Extract "1" from "1.jpg"
-                    string binarizedFile = Path.Combine("Binarized", $"{imageName}.txt");    // Look for "Binarized/1.txt"
-
-                    if (File.Exists(binarizedFile))
-                    {
-                        // Read the binarized image (input vector)
-                        int[] inputVector = NeoCortexUtils.ReadCsvIntegers(binarizedFile).ToArray();
-
-                        // Ensure we have the correct normalized permanence for this image
-                        if (i < normalizedPermanence.Count)
+                        foreach (var kvp in reconstructedPermanence)
                         {
-                            int[] currentNormalizedPermanence = normalizedPermanence[i];
-
-                            // Compute Jaccard Similarity
-                            double jaccardSim = MathHelpers.JaccardSimilarityofBinaryArrays(inputVector, currentNormalizedPermanence);
-
-                            // Store similarity result for plotting
-                            similarityList.Add(new double[] { jaccardSim });
-
-                            Debug.WriteLine($"Image {imageName}.jpg | Jaccard Similarity: {jaccardSim}");
+                            allPermanenceDictionary[kvp.Key] = kvp.Value;
                         }
-                        else
+
+                        int imgsize = 52 * 52;
+
+                        // Assign inactive columns permanence = 0
+                        for (int inputIndex = 0; inputIndex < imgsize; inputIndex++)
                         {
-                            Debug.WriteLine($"Warning: No normalized permanence found for {imageName}.jpg");
+                            if (!reconstructedPermanence.ContainsKey(inputIndex))
+                            {
+                                allPermanenceDictionary[inputIndex] = 0.0;
+                            }
                         }
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"Warning: Binarized file {binarizedFile} not found.");
+
+                        // Normalize permanence values
+                        var ThresholdValue = 69.0;
+                        List<double> permanenceValuesList = allPermanenceDictionary.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList();
+                        int[] currentNormalizedPermanence = Helpers.ThresholdingProbabilities(permanenceValuesList, ThresholdValue).ToArray();
+
+                        normalizedPermanence.Add(currentNormalizedPermanence);
+                        // Define a unique image index for consistency
+                        int imageIndex = activeColsList.IndexOf(actcols);
+
+                        // Generate consistent names for both images
+                        string reconstructedImageName = $"ReconstructedImage_{imageIndex}";
+                        string heatmapImageName = $"Heatmap_{imageIndex}";
+
+                        // Save the reconstructed binary image
+                        NeoCortexUtils.GenarateReconstrucetedBinarizedImage(currentNormalizedPermanence.ToArray(), reconstructedImageName);
+
+                        // *Save heatmap per cycle*
+                        List<List<double>> heatmapData = new List<List<double>> { permanenceValuesList }; // Use sorted permanence
+                        string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "ImageInputHeatmaps");
+                        Directory.CreateDirectory(folderPath);
+                        string heatmapFilePath = Path.Combine(folderPath, $"{heatmapImageName}.png");
+
+                        NeoCortexUtils.GenarateImageInputHeatmap(heatmapData, heatmapFilePath);
+                        GenerateMatricsforImage(heatmapData);
+
+                        // Compare similarity for each training image
+                        for (int i = 0; i < trainingImages.Length; i++)
+                        {
+                            string imageName = Path.GetFileNameWithoutExtension(trainingImages[i]);
+                            string binarizedFile = Path.Combine("Binarized", $"{imageName}.txt");
+
+                            if (File.Exists(binarizedFile))
+                            {
+                                // Read the binarized image (input vector)
+                                int[] inputVector = NeoCortexUtils.ReadCsvIntegers(binarizedFile).ToArray();
+
+                                // Compute Jaccard Similarity
+                                double jaccardSim = MathHelpers.JaccardSimilarityofBinaryArrays(inputVector, currentNormalizedPermanence);
+
+                                // Track the highest similarity for this image
+                                if (!highestSimilarityPerImage.ContainsKey(imageName) || jaccardSim > highestSimilarityPerImage[imageName])
+                                {
+                                    highestSimilarityPerImage[imageName] = jaccardSim;
+                                }
+
+                                Debug.WriteLine($"Image {imageName}.jpg ========= Jaccard Similarity: {jaccardSim}");
+                            }
+                            else
+                            {
+                                Debug.WriteLine($"Warning: Binarized file {binarizedFile} not found.");
+                            }
+                        }
                     }
                 }
-
             }
 
-            // After processing all images, plot the similarity results
-            DrawSimilarityPlots(similarityList);
-
+            // Pass only the highest similarity values for the training images
+            List<double> finalSimilarityValues = highestSimilarityPerImage.Values.ToList();
+            DrawSimilarityPlots(finalSimilarityValues);
         }
 
-        public static void DrawSimilarityPlots(List<double[]> similaritiesList)
+        /// <summary>
+        /// Draws the similarity plot based on the highest similarity scores for the images.
+        /// The plot is saved as a PNG file in the current directory under "SimilarityPlots" folder.
+        /// </summary>
+        /// <param name="highestSimilarities">The list of highest similarity values to plot.</param>
+        public static void DrawSimilarityPlots(List<double> highestSimilarities)
         {
-            // Ensure there is at least one cycle to process
-            if (similaritiesList == null || similaritiesList.Count == 0)
+            if (highestSimilarities == null || highestSimilarities.Count == 0)
             {
                 Debug.WriteLine("No similarity data available.");
                 return;
-            }
-
-            // Get only the last cycle's similarity values (multiple images)
-            List<double> lastCycleSimilarities = new List<double>();
-
-            foreach (var similarity in similaritiesList)
-            {
-                lastCycleSimilarities.AddRange(similarity); // Collect all similarities from the last cycle
             }
 
             // Define the folder path based on the current directory
@@ -270,19 +272,63 @@ namespace NeoCortexApiSample
             }
 
             // Define the file name
-            string fileName = "last_cycle_Image_similarity_plot.png";
+            string fileName = "similarity_plot.png";
 
             // Define the file path with the folder path and file name
             string filePath = Path.Combine(folderPath, fileName);
 
-            // Draw the similarity plot for the last cycle
-            NeoCortexUtils.DrawCombinedSimilarityPlot(lastCycleSimilarities, filePath, 4500, 1100);
+            // Draw the similarity plot for the highest similarity scores
+            NeoCortexUtils.DrawCombinedSimilarityPlot(highestSimilarities, filePath, 800, 1200);
 
-            // Debugging the Filepath
             Debug.WriteLine($"FilePath: {filePath}");
-            Debug.WriteLine("Last cycle similarity plot generated and saved successfully.");
+            Debug.WriteLine("Similarity plot generated and saved successfully.");
         }
 
+        /// <summary>
+        /// Generates heatmap matrices for each image based on the provided heatmap data.
+        /// Each heatmap is saved as a PNG file in the current directory under "HeatMapMatricsforImage" folder.
+        /// </summary>
+        /// <param name="heatmapData">The heatmap data representing the image matrix values.</param>
+        private void GenerateMatricsforImage(List<List<double>> heatmapData)
+        {
+            int i = 1;
 
+            foreach (var values in heatmapData)
+            {
+                // Define the folder path from the current Directory
+                string folderPath = Path.Combine(Environment.CurrentDirectory, "HeatMapMatricsforImage");
+
+                // Create the folder if it doesn't exist
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                // Define the file path with the folder path
+                string filePath = Path.Combine(folderPath, $"heatmapMatrix_{i}.png");
+
+                // Debugging the FilePath
+                Debug.WriteLine($"FilePath: {filePath}");
+
+                // Assuming the input data should be in a 52x52 matrix (rows x columns)
+                int rows = 52;
+                int cols = 52;
+
+                // Check if the number of values matches the expected size (52x52)
+                if (values.Count != rows * cols)
+                {
+                    Debug.WriteLine("Data does not match expected size of Image Height and Width.");
+                    continue;  // Skip this row if data doesn't match
+                }
+
+                // Create a heatmap for the data
+                NeoCortexUtils.SaveHeatmapValuesAsImage(values, filePath, rows, cols, 50);
+
+                // Debugging the Message
+                Debug.WriteLine($"Heatmap values {i} generated and saved successfully.");
+
+                i++;
+            }
+        }
     }
 }

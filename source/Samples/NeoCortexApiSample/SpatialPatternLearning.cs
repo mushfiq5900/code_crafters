@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Reflection;
 
 namespace NeoCortexApiSample
 {
@@ -20,36 +18,31 @@ namespace NeoCortexApiSample
     /// </summary>
     public class SpatialPatternLearning
     {
+        /// <summary>
+        /// Main function that runs the experiment.
+        /// It initializes the HTM configuration, encoder, and spatial pooler, 
+        /// and trains the model on spatial patterns.
+        /// </summary>
         public void Run()
         {
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(SpatialPatternLearning)}");
 
-            // Used as a boosting parameters
-            // that ensure homeostatic plasticity effect.
             double minOctOverlapCycles = 1.0;
             double maxBoost = 5.0;
-
-            // We will use 200 bits to represent an input vector (pattern).
             int inputBits = 200;
-
-            // We will build a slice of the cortex with the given number of mini-columns
             int numColumns = 1024;
 
-            //
-            // This is a set of configuration parameters used in the experiment.
             HtmConfig cfg = new HtmConfig(new int[] { inputBits }, new int[] { numColumns })
             {
                 CellsPerColumn = 10,
                 MaxBoost = maxBoost,
                 DutyCyclePeriod = 100,
                 MinPctOverlapDutyCycles = minOctOverlapCycles,
-
                 GlobalInhibition = false,
                 NumActiveColumnsPerInhArea = 0.02 * numColumns,
                 PotentialRadius = (int)(0.15 * inputBits),
                 LocalAreaDensity = -1,
                 ActivationThreshold = 10,
-
                 MaxSynapsesPerSegment = (int)(0.01 * numColumns),
                 Random = new ThreadSafeRandom(42),
                 StimulusThreshold = 10,
@@ -57,8 +50,6 @@ namespace NeoCortexApiSample
 
             double max = 100;
 
-            //
-            // This dictionary defines a set of typical encoder parameters.
             Dictionary<string, object> settings = new Dictionary<string, object>()
             {
                 { "W", 15},
@@ -71,130 +62,71 @@ namespace NeoCortexApiSample
                 { "MaxVal", max}
             };
 
-
             EncoderBase encoder = new ScalarEncoder(settings);
 
-            //
-            // We create here 100 random input values.
             List<double> inputValues = new List<double>();
-
             for (int i = 0; i < (int)max; i++)
             {
                 inputValues.Add((double)i);
             }
 
             var sp = RunExperiment(cfg, encoder, inputValues);
-
             RunRustructuringExperiment(sp, encoder, inputValues);
         }
 
-
-
         /// <summary>
-        /// Implements the experiment.
+        /// Runs the core experiment for training the Spatial Pooler (SP).
+        /// This function initializes the HTM memory, the spatial pooler, and runs multiple learning cycles.
         /// </summary>
-        /// <param name="cfg"></param>
-        /// <param name="encoder"></param>
-        /// <param name="inputValues"></param>
-        /// <returns>The trained bersion of the SP.</returns>
         private static SpatialPooler RunExperiment(HtmConfig cfg, EncoderBase encoder, List<double> inputValues)
         {
-            // Creates the htm memory.
             var mem = new Connections(cfg);
-
             bool isInStableState = false;
-
-            //
-            // HPC extends the default Spatial Pooler algorithm.
-            // The purpose of HPC is to set the SP in the new-born stage at the begining of the learning process.
-            // In this stage the boosting is very active, but the SP behaves instable. After this stage is over
-            // (defined by the second argument) the HPC is controlling the learning process of the SP.
-            // Once the SDR generated for every input gets stable, the HPC will fire event that notifies your code
-            // that SP is stable now.
             HomeostaticPlasticityController hpa = new HomeostaticPlasticityController(mem, inputValues.Count * 40,
                 (isStable, numPatterns, actColAvg, seenInputs) =>
                 {
-                    // Event should only be fired when entering the stable state.
-                    // Ideal SP should never enter unstable state after stable state.
-                    if (isStable == false)
+                    if (!isStable)
                     {
                         Debug.WriteLine($"INSTABLE STATE");
-                        // This should usually not happen.
                         isInStableState = false;
                     }
                     else
                     {
                         Debug.WriteLine($"STABLE STATE");
-                        // Here you can perform any action if required.
                         isInStableState = true;
                     }
                 });
 
-            // It creates the instance of Spatial Pooler Multithreaded version.
             SpatialPooler sp = new SpatialPooler(hpa);
-            //sp = new SpatialPoolerMT(hpa);
-
-            // Initializes the 
             sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, NeoCortexApi.Entities.Column>(1) });
 
-            // mem.TraceProximalDendritePotential(true);
-
-            // It creates the instance of the neo-cortex layer.
-            // Algorithm will be performed inside of that layer.
             CortexLayer<object, object> cortexLayer = new CortexLayer<object, object>("L1");
-
-            // Add encoder as the very first module. This model is connected to the sensory input cells
-            // that receive the input. Encoder will receive the input and forward the encoded signal
-            // to the next module.
             cortexLayer.HtmModules.Add("encoder", encoder);
-
-            // The next module in the layer is Spatial Pooler. This module will receive the output of the
-            // encoder.
             cortexLayer.HtmModules.Add("sp", sp);
 
             double[] inputs = inputValues.ToArray();
-
-            // Will hold the SDR of every inputs.
             Dictionary<double, int[]> prevActiveCols = new Dictionary<double, int[]>();
-
-            // Will hold the similarity of SDKk and SDRk-1 fro every input.
             Dictionary<double, double> prevSimilarity = new Dictionary<double, double>();
 
-            //
-            // Initiaize start similarity to zero.
             foreach (var input in inputs)
             {
                 prevSimilarity.Add(input, 0.0);
                 prevActiveCols.Add(input, new int[0]);
             }
 
-            // Learning process will take 1000 iterations (cycles)
-<<<<<<< HEAD
-            int maxSPLearningCycles = 5;
-=======
-            int maxSPLearningCycles = 700;
->>>>>>> 22693924381be46c0a6a1a0f5818810f097f56ae
-
+            int maxSPLearningCycles = 500;
             int numStableCycles = 0;
 
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)
             {
                 Debug.WriteLine($"Cycle  * {cycle} * Stability: {isInStableState}");
 
-                //
-                // This trains the layer on input pattern.
                 foreach (var input in inputs)
                 {
                     double similarity;
 
-                    // Learn the input pattern.
-                    // Output lyrOut is the output of the last module in the layer.
-                    // 
                     var lyrOut = cortexLayer.Compute((object)input, true) as int[];
-
-                    // This is a general way to get the SpatialPooler result from the layer.
                     var activeColumns = cortexLayer.GetResult("sp") as int[];
-
                     var actCols = activeColumns.OrderBy(c => c).ToArray();
 
                     similarity = MathHelpers.CalcArraySimilarity(activeColumns, prevActiveCols[input]);
@@ -216,32 +148,11 @@ namespace NeoCortexApiSample
 
             return sp;
         }
+
         /// <summary>
-        /// Executes an experiment to analyze and visualize the behavior of a Spatial Pooler (SP) in response to a sequence of encoded input values. 
-        /// This method systematically encodes each input value into a Sparse Distributed Representation (SDR) using the specified encoder (Scaler Encoder), 
-        /// then processes these SDRs through the SP (Saptial Pooler Algorithm) to identify active columns. It reconstructs permanence values for these active columns, 
-        /// normalizes them against a predefined threshold, and aggregates this data to generate visual heatmaps. These heatmaps illustrate 
-        /// how the SP's internal representations of inputs evolve over time, enabling a deeper understanding of its learning and memory processes.
-        /// Additionally, the method assesses the SP's ability to adapt its synaptic connections (permanences) in response to the inputs, 
-        /// thereby effectively 'training' the SP through exposure to the dataset. The experiment aims to shed light on the dynamics of synaptic 
-        /// plasticity within the SP framework, offering insights that could guide the tuning of its parameters for improved performance in specific tasks.
+        /// Executes a restructuring experiment to analyze the behavior of the spatial pooler.
+        /// It computes the reconstruction of the SDR and compares it to the original input SDR.
         /// </summary>
-        /// <param name="sp">The Spatial Pooler instance to be used for the experiment. It processes input SDRs to simulate neural activity and synaptic plasticity.</param>
-        /// <param name="encoder">The encoder used for converting raw input values into SDRs. The quality of encoding directly influences the SP's performance and the experiment's outcomes.</param>
-        /// <param name="inputValues">A list of input values to be encoded and processed through the SP. These values serve as the experimental dataset, exposing the SP to various patterns and contexts.</param>
-        /// <remarks>
-        /// <para>The "maxInput" is the Maximum number of inputs to consider for reconstruction according to the size of Encoded Inputs.</para>
-        /// <para>The "thresholdValue" is Threshold value for permanence normalization to convert them as 0 and 1 Like the encoded Inputs.</para>
-        /// <para>Initializes lists to store heatmap data and normalized permanence values.</para>
-        /// <para>Iterates over each input value, encoding it, computing active columns, and reconstructing permanence values.</para>
-        /// <para>Populates a dictionary with all reconstructed permanence values and ensures representation up to a maximum input index.</para>
-        /// <para>Converts permanence values to a list and adds it to the heatmap data.</para>
-        /// <para>Outputs debug information about input values and corresponding Sparse Distributed Representation (SDR).</para>
-        /// <para>Defines a threshold for permanence normalization and normalizes permanences based on this threshold.</para>
-        /// <para>Adds normalized permanences to a list.</para>
-        /// <para>Calls a method to generate 1D heatmaps using the heatmap data and normalized permanences.</para>
-        /// </remarks>
-        // Define a method to run the restructuring experiment, which takes a spatial pooler, an encoder, and a list of input values as arguments.
         private void RunRustructuringExperiment(SpatialPooler sp, EncoderBase encoder, List<double> inputValues)
         {
             List<List<double>> heatmapData = new List<List<double>>();
@@ -249,10 +160,7 @@ namespace NeoCortexApiSample
             List<int[]> encodedInputs = new List<int[]>();
             List<double[]> similarityList = new List<double[]>();
 
-            // Define directory path
             string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Heatmaps");
-
-            // Ensure directory exists
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
@@ -263,9 +171,9 @@ namespace NeoCortexApiSample
                 var inpSdr = encoder.Encode(input);
                 var actCols = sp.Compute(inpSdr, false);
                 Dictionary<int, double> reconstructedPermanence = sp.Reconstruct(actCols);
+
                 int maxInput = inpSdr.Length;
                 Dictionary<int, double> allPermanenceDictionary = new Dictionary<int, double>();
-
                 foreach (var kvp in reconstructedPermanence)
                 {
                     allPermanenceDictionary[kvp.Key] = kvp.Value;
@@ -288,6 +196,7 @@ namespace NeoCortexApiSample
                 var ThresholdValue = 8.3;
                 List<int> normalizePermanenceList = Helpers.ThresholdingProbabilities(permanenceValuesList, ThresholdValue);
                 normalizedPermanence.Add(normalizePermanenceList.ToArray());
+
                 encodedInputs.Add(inpSdr);
 
                 var similarity = MathHelpers.JaccardSimilarityofBinaryArrays(inpSdr, normalizePermanenceList.ToArray());
@@ -295,74 +204,51 @@ namespace NeoCortexApiSample
                 similarityList.Add(similarityArray);
             }
 
-            // Generate heatmaps for all collected data
-            int rows = 8; // Example, adjust according to your experiment
-            int cols = 25; // Example, adjust according to your experiment
-            int scaleFactor = 50; // Example, adjust according to your experiment
-
-            int index = 1; // Start index to differentiate heatmaps
-            foreach (var values in heatmapData)
-            {
-                // Define the unique file path for each heatmap
-                string filePath = Path.Combine(directoryPath, $"heatmap_{index}.png");
-                Debug.WriteLine($"Saving heatmap to: {filePath}");
-
-                // Call the heatmap function here for each values set
-                NeoCortexUtils.DrawBitHeatmap(values, filePath, rows, cols, scaleFactor);
-
-                index++; // Increment index for the next heatmap file name
-            }
-
-            // Draw similarity plots
-            DrawSimilarityPlots(similarityList);
             GenerateMatrics(heatmapData);
             GenerateEncodedMatrics(encodedInputs.Select(arr => arr.ToList()).ToList());
             GenerateReconstructedMatrics(normalizedPermanence.Select(arr => arr.ToList()).ToList());
+            DrawSimilarityPlots(similarityList);
 
             Console.WriteLine("All heatmaps generated and similarity plots saved.");
         }
+
+        /// <summary>
+        /// Generates heatmap matrices from the collected experiment data.
+        /// </summary>
         private void GenerateMatrics(List<List<double>> heatmapData)
         {
             int i = 1;
-
             foreach (var values in heatmapData)
-
             {
-                // Define the folder path from the current Directory
                 string folderPath = Path.Combine(Environment.CurrentDirectory, "HeatMapMatrics");
-                // Create the folder if it doesn't exist
                 if (!Directory.Exists(folderPath))
                 {
                     Directory.CreateDirectory(folderPath);
                 }
 
-                // Define the file path with the folder path
                 string filePath = Path.Combine(folderPath, $"heatmapMatrix_{i}.png");
 
-                // Debugging the FilePath
                 Debug.WriteLine($"FilePath: {filePath}");
 
-                // Assuming the input data should be in an 8x25 matrix (rows x columns)
-                // Convert the current row to a 2D array (8x25) directly
                 int rows = 8;
                 int cols = 25;
 
-                // Check if the number of values matches the expected size (8x25)
                 if (values.Count != rows * cols)
                 {
                     Debug.WriteLine("Data does not match expected size of 8x25.");
-                    continue;  // Skip this row if data doesn't match
+                    continue;
                 }
 
-                // Create a heatmap for the data
                 NeoCortexUtils.SaveHeatmapValuesAsImage(values, filePath, rows, cols, 50);
 
-                // Debugging the Message
-                Debug.WriteLine($"Heatmap values {i} generated and saved successfully.");
-
+                Debug.WriteLine($"Heatmap {i} generated and saved successfully.");
                 i++;
             }
         }
+
+        /// <summary>
+        /// Generates encoded input matrices from the SDRs.
+        /// </summary>
         private void GenerateEncodedMatrics(List<List<int>> encodedInputs)
         {
             int i = 1;
@@ -405,6 +291,10 @@ namespace NeoCortexApiSample
                 i++;
             }
         }
+
+        /// <summary>
+        /// Generates and saves reconstructed matrices from the normalized permanence values.
+        /// </summary>
         private void GenerateReconstructedMatrics(List<List<int>> normalizedPermanence)
         {
             int i = 1;
@@ -447,6 +337,10 @@ namespace NeoCortexApiSample
                 i++;
             }
         }
+
+        /// <summary>
+        /// Generates and saves similarity plots for the experiment.
+        /// </summary>
         public static void DrawSimilarityPlots(List<double[]> similaritiesList)
         {
             // Combine all similarities from the list of arrays

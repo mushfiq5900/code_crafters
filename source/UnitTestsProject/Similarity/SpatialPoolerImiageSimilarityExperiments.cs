@@ -55,63 +55,30 @@ namespace UnitTestsProject
             Directory.CreateDirectory($"{nameof(ImageSimilarityExperiment)}");
 
             int counter = 0;
-            //var parameters = GetDefaultParams();
-            ////parameters.Set(KEY.DUTY_CYCLE_PERIOD, 20);
-            ////parameters.Set(KEY.MAX_BOOST, 1);
-            ////parameters.setInputDimensions(new int[] { imageSize[imSizeIndx], imageSize[imSizeIndx] });
-            ////parameters.setColumnDimensions(new int[] { topologies[topologyIndx], topologies[topologyIndx] });
-            ////parameters.setNumActiveColumnsPerInhArea(0.02 * numOfActCols);
-            //parameters.Set(KEY.NUM_ACTIVE_COLUMNS_PER_INH_AREA, 0.06 * 4096); // TODO. Experiment with different sizes
-            //parameters.Set(KEY.POTENTIAL_RADIUS, imgSize * imgSize);
-            //parameters.Set(KEY.POTENTIAL_PCT, 1.0);
-            //parameters.Set(KEY.GLOBAL_INHIBITION, true); // TODO: Experiment with local inhibition too. Note also the execution time of the experiment.
 
-            //// Num of active synapces in order to activate the column.
-            //parameters.Set(KEY.STIMULUS_THRESHOLD, 50.0);
-            //parameters.Set(KEY.SYN_PERM_INACTIVE_DEC, 0.008);
-            //parameters.Set(KEY.SYN_PERM_ACTIVE_INC, 0.05);
 
-            //parameters.Set(KEY.INHIBITION_RADIUS, (int)0.02 * imgSize * imgSize); // TODO. check if this has influence in a case of the global inhibition. ALso check how this parameter influences the similarity of SDR.
-
-            //parameters.Set(KEY.SYN_PERM_CONNECTED, 0.2);
-            //parameters.Set(KEY.MIN_PCT_OVERLAP_DUTY_CYCLES, 0.001);
-            //parameters.Set(KEY.MIN_PCT_ACTIVE_DUTY_CYCLES, 0.001);
-            //parameters.Set(KEY.DUTY_CYCLE_PERIOD, 1000);
-            //parameters.Set(KEY.MAX_BOOST, 100);
-            //parameters.Set(KEY.WRAP_AROUND, true);
-            //parameters.Set(KEY.SEED, 1969);
-            //parameters.setInputDimensions(new int[] { imgSize, imgSize });
-            //parameters.setColumnDimensions(colDims);
-
-            Parameters p = Parameters.getAllDefaultParameters();
-            p.Set(KEY.RANDOM, new ThreadSafeRandom(42));
-            p.Set(KEY.INPUT_DIMENSIONS, new int[] { imgSize, imgSize });
-            p.Set(KEY.COLUMN_DIMENSIONS, colDims);
-            p.Set(KEY.CELLS_PER_COLUMN, 10);
-
-            p.Set(KEY.MAX_BOOST, maxBoost);
-            p.Set(KEY.DUTY_CYCLE_PERIOD, 50);
-            p.Set(KEY.MIN_PCT_OVERLAP_DUTY_CYCLES, minOctOverlapCycles);
-
-            // Global inhibition
-            // N of 40 (40= 0.02*2048 columns) active cells required to activate the segment.
-            p.Set(KEY.GLOBAL_INHIBITION, true);
-            p.setNumActiveColumnsPerInhArea(0.02 * numOfCols);
-            p.Set(KEY.POTENTIAL_RADIUS, (int)(0.8 * imgSize * imgSize));
-            p.Set(KEY.LOCAL_AREA_DENSITY, -1); // In a case of global inhibition.
-            //p.setInhibitionRadius( Automatically set on the columns pace in a case of global inhibition.);
-
-            // Activation threshold is 10 active cells of 40 cells in inhibition area.
-            p.setActivationThreshold(10);
-
-            // Max number of synapses on the segment.
-            p.setMaxNewSynapsesPerSegmentCount((int)(0.02 * numOfCols));
+            HtmConfig cfg = new HtmConfig(new int[] { imgSize, imgSize }, new int[] { numOfCols })
+            {
+                CellsPerColumn = 10,
+                InputDimensions = new int[] { imgSize, imgSize },
+                NumInputs = imgSize * imgSize,
+                ColumnDimensions = colDims,
+                MaxBoost = maxBoost,
+                DutyCyclePeriod = 100,
+                MinPctOverlapDutyCycles = minOctOverlapCycles,
+                GlobalInhibition = false,
+                NumActiveColumnsPerInhArea = 0.02 * numOfCols,
+                PotentialRadius = (int)(0.15 * imgSize * imgSize),
+                LocalAreaDensity = -1,
+                ActivationThreshold = 10,
+                MaxSynapsesPerSegment = (int)(0.01 * numOfCols),
+                Random = new ThreadSafeRandom(42),
+                StimulusThreshold = 10,
+            };
 
             bool isInStableState = false;
 
-            var mem = new Connections();
-
-            p.apply(mem);
+            var mem = new Connections(cfg);
 
             HomeostaticPlasticityController hpa = new HomeostaticPlasticityController(mem, trainingImages.Length * 50, (isStable, numPatterns, actColAvg, seenInputs) =>
             {
@@ -152,7 +119,7 @@ namespace UnitTestsProject
 
                             FileInfo fI = new FileInfo(trainingImage);
 
-                            string outputImage = $"{outFolder}\\{inputPrefix}_cycle_{counter}_{fI.Name}";
+                            string outputImage = $"{outFolder}\\{inputPrefix}cycle{counter}_{fI.Name}";
 
                             string testName = $"{outFolder}\\{inputPrefix}_{fI.Name}";
 
@@ -228,6 +195,7 @@ namespace UnitTestsProject
             double minOctOverlapCycles = 1.0;
             double maxBoost = 10.0;
             int inputBits = 100;
+            int imgSize = 28;
             var colDims = new int[] { 64 * 64 };
             int numOfActCols = colDims[0];
             int numColumns = colDims[0];
@@ -235,58 +203,26 @@ namespace UnitTestsProject
 
             Directory.CreateDirectory($"{nameof(ImageSimilarityExperiment)}");
 
-            //int counter = 0;
-            //var parameters = GetDefaultParams();
-            ////parameters.Set(KEY.DUTY_CYCLE_PERIOD, 20);
-            ////parameters.Set(KEY.MAX_BOOST, 1);
-            ////parameters.setInputDimensions(new int[] { imageSize[imSizeIndx], imageSize[imSizeIndx] });
-            ////parameters.setColumnDimensions(new int[] { topologies[topologyIndx], topologies[topologyIndx] });
-            ////parameters.setNumActiveColumnsPerInhArea(0.02 * numOfActCols);
-            //parameters.Set(KEY.NUM_ACTIVE_COLUMNS_PER_INH_AREA, 0.06 * 4096); // TODO. Experiment with different sizes
-            //parameters.Set(KEY.POTENTIAL_RADIUS, inputBits);
-            //parameters.Set(KEY.POTENTIAL_PCT, 1.0);
-            //parameters.Set(KEY.GLOBAL_INHIBITION, true); // TODO: Experiment with local inhibition too. Note also the execution time of the experiment.
 
-            //// Num of active synapces in order to activate the column.
-            //parameters.Set(KEY.STIMULUS_THRESHOLD, 50.0);
-            //parameters.Set(KEY.SYN_PERM_INACTIVE_DEC, 0.008);
-            //parameters.Set(KEY.SYN_PERM_ACTIVE_INC, 0.05);
 
-            //parameters.Set(KEY.INHIBITION_RADIUS, (int)0.15 * inputBits); // TODO. check if this has influence in a case of the global inhibition. ALso check how this parameter influences the similarity of SDR.
-
-            //parameters.Set(KEY.SYN_PERM_CONNECTED, 0.2);
-            //parameters.Set(KEY.MIN_PCT_OVERLAP_DUTY_CYCLES, 1.0);
-            //parameters.Set(KEY.MIN_PCT_ACTIVE_DUTY_CYCLES, 0.001);
-            //parameters.Set(KEY.DUTY_CYCLE_PERIOD, 100);
-            //parameters.Set(KEY.MAX_BOOST, 10);
-            //parameters.Set(KEY.WRAP_AROUND, true);
-            //parameters.Set(KEY.SEED, 1969);
-            //parameters.setInputDimensions(new int[] {inputBits });
-            //parameters.setColumnDimensions(colDims);
-
-            Parameters p = Parameters.getAllDefaultParameters();
-            p.Set(KEY.RANDOM, new ThreadSafeRandom(42));
-            p.Set(KEY.INPUT_DIMENSIONS, new int[] { inputBits });
-            p.Set(KEY.COLUMN_DIMENSIONS, colDims);
-            p.Set(KEY.CELLS_PER_COLUMN, 10);
-
-            p.Set(KEY.MAX_BOOST, maxBoost);
-            p.Set(KEY.DUTY_CYCLE_PERIOD, 50);
-            p.Set(KEY.MIN_PCT_OVERLAP_DUTY_CYCLES, minOctOverlapCycles);
-
-            // Global inhibition
-            // N of 40 (40= 0.02*2048 columns) active cells required to activate the segment.
-            p.Set(KEY.GLOBAL_INHIBITION, true);
-            p.setNumActiveColumnsPerInhArea(0.02 * numColumns);
-            p.Set(KEY.POTENTIAL_RADIUS, (int)(.7 * inputBits));
-            p.Set(KEY.LOCAL_AREA_DENSITY, -1); // In a case of global inhibition.
-            //p.setInhibitionRadius( Automatically set on the columns pace in a case of global inhibition.);
-
-            // Activation threshold is 10 active cells of 40 cells in inhibition area.
-            p.setActivationThreshold(10);
-
-            // Max number of synapses on the segment.
-            p.setMaxNewSynapsesPerSegmentCount((int)(0.02 * numColumns));
+            HtmConfig cfg = new HtmConfig(new int[] { imgSize, imgSize }, new int[] { numColumns })
+            {
+                CellsPerColumn = 10,
+                InputDimensions = new int[] { imgSize, imgSize },
+                NumInputs = imgSize * imgSize,
+                ColumnDimensions = colDims,
+                MaxBoost = maxBoost,
+                DutyCyclePeriod = 100,
+                MinPctOverlapDutyCycles = minOctOverlapCycles,
+                GlobalInhibition = false,
+                NumActiveColumnsPerInhArea = 0.02 * numColumns,
+                PotentialRadius = (int)(0.15 * imgSize * imgSize),
+                LocalAreaDensity = -1,
+                ActivationThreshold = 10,
+                MaxSynapsesPerSegment = (int)(0.01 * numColumns),
+                Random = new ThreadSafeRandom(42),
+                StimulusThreshold = 10,
+            };
             double max = 20;
 
             Dictionary<string, object> settings = new Dictionary<string, object>()
@@ -305,9 +241,7 @@ namespace UnitTestsProject
 
             bool isInStableState = false;
 
-            var mem = new Connections();
-
-            p.apply(mem);
+            var mem = new Connections(cfg);
 
             var inputs = new int[] { 0, 1, 2, 3, 4, 5 };
 
@@ -375,43 +309,7 @@ namespace UnitTestsProject
                                 if (--stableStateCnt <= 0)
                                     return;
                             }
-                            /*
-                            if (isInStableState)
-                            {
-                                swActCol.WriteLine($"\nDigit {digit}");
 
-                                sdrs.Add(digit.ToString(), activeCols);
-
-                                // 
-                                // To be sure that same input produces the same output after entered the stable state.
-                                for (int i = 0; i < 100; i++)
-                                {
-                                    activeArray = new int[numOfActCols];
-
-                                    sp.compute(inputVector, activeArray, true);
-                                    
-                                    var distance = MathHelpers.GetHammingDistance(oldArray, activeArray, true);
-                                    
-                                    var actColsIndxes = ArrayUtils.IndexWhere(activeArray, i => i == 1);
-                                    var oldActColsIndxes = ArrayUtils.IndexWhere(oldArray, i => i == 1);
-
-                                    var similarity = MathHelpers.CalcArraySimilarity(actColsIndxes, oldActColsIndxes);
-
-                                    swHam.Write($"Digit {digit}: Dist/Similarity: {distance} | {similarity}\t");
-                                    Debug.Write($"Digit {digit}: Dist/Similarity: {distance} | {similarity}\t");
-                                    Debug.WriteLine($"{Helpers.StringifyVector(actColsIndxes)}");
-
-                                    if (i > 5 && similarity < 100)
-                                    { 
-                                    
-                                    }
-
-                                    oldArray = new int[numOfActCols];
-                                    activeArray.CopyTo(oldArray, 0);
-                                }
-                            }
-
-                            Debug.WriteLine($"Cycle {cycle++}");*/
                         }
 
                         cycle++;
@@ -453,14 +351,14 @@ namespace UnitTestsProject
                     var key2 = keyArray[j];
                     int[] sdr1 = sdrs.GetValueOrDefault<string, int[]>(key1);
                     int[] sdr2 = sdrs.GetValueOrDefault<string, int[]>(key2);
-                    
+
                     double outputSimilarity = MathHelpers.CalcArraySimilarity(sdr1, sdr2);
 
                     int[] inp1 = inputVectors.GetValueOrDefault<string, int[]>(key1);
                     int[] inp2 = inputVectors.GetValueOrDefault<string, int[]>(key2);
                     double inputSimilarity = MathHelpers.CalcArraySimilarity(inp1, inp2);
 
-                    streamWriter.Write($" | {inputSimilarity.ToString("0.0")} {outputSimilarity.ToString("0.0")} ");                    
+                    streamWriter.Write($" | {inputSimilarity.ToString("0.0")} {outputSimilarity.ToString("0.0")} ");
                 }
             }
 
@@ -468,56 +366,6 @@ namespace UnitTestsProject
 
             return;
         }
-
-        #region Private Helpers
-
-        internal static Parameters GetDefaultParams()
-        {
-
-            ThreadSafeRandom rnd = new ThreadSafeRandom(42);
-
-            var parameters = Parameters.getAllDefaultParameters();
-            parameters.Set(KEY.POTENTIAL_RADIUS, 10);
-            parameters.Set(KEY.POTENTIAL_PCT, 0.75);
-            parameters.Set(KEY.GLOBAL_INHIBITION, false);
-            parameters.Set(KEY.LOCAL_AREA_DENSITY, -1);
-            parameters.Set(KEY.NUM_ACTIVE_COLUMNS_PER_INH_AREA, 50.0);
-            parameters.Set(KEY.STIMULUS_THRESHOLD, 0);
-            parameters.Set(KEY.SYN_PERM_INACTIVE_DEC, 0.01);
-            parameters.Set(KEY.SYN_PERM_ACTIVE_INC, 0.1);
-            parameters.Set(KEY.SYN_PERM_CONNECTED, 0.1);
-            parameters.Set(KEY.MIN_PCT_OVERLAP_DUTY_CYCLES, 0.001);
-            parameters.Set(KEY.MIN_PCT_ACTIVE_DUTY_CYCLES, 0.001);
-            //parameters.Set(KEY.WRAP_AROUND, false);
-            parameters.Set(KEY.DUTY_CYCLE_PERIOD, 100);
-            parameters.Set(KEY.MAX_BOOST, 10.0);
-            parameters.Set(KEY.RANDOM, rnd);
-            //int r = parameters.Get<int>(KEY.NUM_ACTIVE_COLUMNS_PER_INH_AREA);
-
-            /*
-            Random rnd = new Random(42);
-
-            var parameters = Parameters.getAllDefaultParameters();
-            parameters.Set(KEY.POTENTIAL_RADIUS, 16);
-            parameters.Set(KEY.POTENTIAL_PCT, 0.85);
-            parameters.Set(KEY.GLOBAL_INHIBITION, false);
-            parameters.Set(KEY.LOCAL_AREA_DENSITY, -1.0);
-            //parameters.Set(KEY.NUM_ACTIVE_COLUMNS_PER_INH_AREA, 3.0);
-            parameters.Set(KEY.STIMULUS_THRESHOLD, 0.0);
-            parameters.Set(KEY.SYN_PERM_INACTIVE_DEC, 0.01);
-            parameters.Set(KEY.SYN_PERM_ACTIVE_INC, 0.1);
-            parameters.Set(KEY.SYN_PERM_CONNECTED, 0.1);
-            parameters.Set(KEY.MIN_PCT_OVERLAP_DUTY_CYCLES, 0.1);
-            parameters.Set(KEY.MIN_PCT_ACTIVE_DUTY_CYCLES, 0.1);
-            parameters.Set(KEY.DUTY_CYCLE_PERIOD, 10);
-            parameters.Set(KEY.MAX_BOOST, 10.0);
-            parameters.Set(KEY.RANDOM, rnd);
-            //int r = parameters.Get<int>(KEY.NUM_ACTIVE_COLUMNS_PER_INH_AREA);
-            */
-            return parameters;
-        }
-
-        #endregion
 
     }
 }
