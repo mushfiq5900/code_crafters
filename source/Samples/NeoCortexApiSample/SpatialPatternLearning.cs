@@ -114,7 +114,7 @@ namespace NeoCortexApiSample
                 prevActiveCols.Add(input, new int[0]);
             }
 
-            int maxSPLearningCycles = 500;
+            int maxSPLearningCycles = 10;
             int numStableCycles = 0;
 
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)
@@ -203,13 +203,48 @@ namespace NeoCortexApiSample
                 double[] similarityArray = new double[] { similarity };
                 similarityList.Add(similarityArray);
             }
-
+            GenerateHeatmap(heatmapData);
             GenerateMatrics(heatmapData);
             GenerateEncodedMatrics(encodedInputs.Select(arr => arr.ToList()).ToList());
             GenerateReconstructedMatrics(normalizedPermanence.Select(arr => arr.ToList()).ToList());
             DrawSimilarityPlots(similarityList);
 
             Console.WriteLine("All heatmaps generated and similarity plots saved.");
+        }
+
+        /// <summary>
+        /// Generates heatmap image from the collected experiment data.
+        /// </summary>
+
+        private void GenerateHeatmap(List<List<double>> heatmapData)
+        {
+            int i = 1;
+            foreach (var values in heatmapData)
+            {
+                string folderPath = Path.Combine(Environment.CurrentDirectory, "HeatMap");
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                string filePath = Path.Combine(folderPath, $"heatmap-{i}.png");
+
+                Debug.WriteLine($"FilePath: {filePath}");
+
+                int rows = 8;
+                int cols = 25;
+
+                if (values.Count != rows * cols)
+                {
+                    Debug.WriteLine("Data does not match expected size of 8x25.");
+                    continue;
+                }
+
+                NeoCortexUtils.DrawBitHeatmap(values, filePath, rows, cols, 50);
+
+                Debug.WriteLine($"Heatmap {i} generated and saved successfully.");
+                i++;
+            }
         }
 
         /// <summary>
