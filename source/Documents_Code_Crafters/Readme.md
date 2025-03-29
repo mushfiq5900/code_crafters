@@ -14,12 +14,11 @@
 - **`ImageBinarizerSpatialPattern.cs`**: Image Inputs 
 [ImageBinarizerSpatialPattern.cs](https://github.com/mushfiq5900/code_crafters/blob/master/source/Samples/NeoCortexApiSample/ImageBinarizerSpatialPattern.cs)
 
-#### Image Sample Folder
+#### Image Sample Folder: [Check Here](https://github.com/mushfiq5900/code_crafters/tree/master/source/Documents_Code_Crafters/Sample/TestFiles) 
 
 
 
-
-#### Usage
+#### Usages
 
 This folder contains six sample images that are required for running the `ImageBinarizerSpatialPattern.cs` program. The images are necessary for testing and demonstrating the functionality of the program.
 After cloning the repository, you need to manually copy and paste this folder into the following location (source\Samples\NeoCortexApiSample\bin\Debug\net9.0)  before executing the `ImageBinarizerSpatialPattern.cs program`: 
@@ -35,7 +34,7 @@ After cloning the repository, you need to manually copy and paste this folder in
 - Change the codes here Clieck the Link below and it will Redirect you.
 [Program.cs](https://github.com/mushfiq5900/code_crafters/blob/master/source/Samples/NeoCortexApiSample/Program.cs#L23-L28)
 ###### All the output will be saved here
-- code_crafters/tree/master/source/Samples/NeoCortexApiSample\bin\Debug\net8.0
+- code_crafters/tree/master/source/Samples/NeoCortexApiSample\bin\Debug\net9.0
 
 
 # Introduction
