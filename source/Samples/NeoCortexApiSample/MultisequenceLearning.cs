@@ -75,8 +75,29 @@ namespace NeoCortexApiSample
         }
 
         /// <summary>
+        /// Runs a learning experiment using the HTM (Hierarchical Temporal Memory) model consisting of a Spatial Pooler (SP),
+        /// Temporal Memory (TM), and a classifier. The method follows a two-stage training process:
         ///
+        /// 1. **Newborn Stage**: Only the Spatial Pooler (SP) is active, allowing it to stabilize using Homeostatic Plasticity Controller (HPC).
+        ///    During this phase, the SP boosts and adapts to the input space before temporal learning begins.
+        /// 
+        /// 2. **Learning Stage**: Once the SP is stable, the Temporal Memory (TM) is activated.
+        ///    The system is trained to learn sequences using both SP and TM, while the classifier tracks and predicts patterns.
+        ///    During this phase, prediction accuracy is monitored and used to determine if the model has successfully learned the sequences.
+        ///
+        /// Key aspects:
+        /// - Uses `HtmClassifier` to store and compare learned patterns.
+        /// - Uses `HomeostaticPlasticityController` to monitor SP's stability.
+        /// - Cycles through all sequences and evaluates accuracy based on predicted vs. actual sequence elements.
+        /// - The experiment concludes successfully if the model achieves 100% prediction accuracy in 30 consecutive cycles.
+        ///
+        /// Throws an exception if the expected accuracy is not achieved for a sequence.
         /// </summary>
+        /// <param name="inputBits">Number of input bits for encoding.</param>
+        /// <param name="cfg">HTM configuration for the spatial and temporal memory modules.</param>
+        /// <param name="encoder">Encoder used to transform input values.</param>
+        /// <param name="sequences">Dictionary of input sequences identified by a key string.</param>
+        /// <returns>A Predictor object trained to recognize and predict the input sequences.</returns>
         private Predictor RunExperiment(int inputBits, HtmConfig cfg, EncoderBase encoder, Dictionary<string, List<double>> sequences)
         {
             Stopwatch sw = new Stopwatch();

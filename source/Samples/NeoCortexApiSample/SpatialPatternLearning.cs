@@ -114,7 +114,7 @@ namespace NeoCortexApiSample
                 prevActiveCols.Add(input, new int[0]);
             }
 
-            int maxSPLearningCycles = 10;
+            int maxSPLearningCycles = 1;
             int numStableCycles = 0;
 
             for (int cycle = 0; cycle < maxSPLearningCycles; cycle++)

@@ -20,12 +20,12 @@ namespace NeoCortexApiSample
         {
             //
             // Starts experiment that demonstrates how to learn spatial patterns.
-            SpatialPatternLearning experiment = new SpatialPatternLearning();
-            experiment.Run();
+            //SpatialPatternLearning experiment = new SpatialPatternLearning();
+            //experiment.Run();
 
             // Starts experiment For the Image Inputs how to learn spatial patterns.
-            //ImageBinarizerSpatialPattern experiment = new ImageBinarizerSpatialPattern();
-            //experiment.Run();
+            ImageBinarizerSpatialPattern experiment = new ImageBinarizerSpatialPattern();
+            experiment.Run();
 
 
             //
@@ -108,6 +108,16 @@ namespace NeoCortexApiSample
             PredictNextElement(predictor, list3);
         }
 
+        /// <summary>
+        /// Iterates through a sequence of input values and uses a predictor to forecast the next element in the sequence.
+        /// For each input:
+        /// - Calls the predictor and retrieves a list of predictions with similarity scores.
+        /// - Logs all predicted sequences along with their similarity.
+        /// - Extracts and logs the first predicted sequence's initial token and predicted next element.
+        /// - Logs a message if no predictions are available.
+        /// </summary>
+        /// <param name="predictor">The predictor instance used to make predictions.</param>
+        /// <param name="list">An array of double values representing the input sequence.</param>
         private static void PredictNextElement(Predictor predictor, double[] list)
         {
             Debug.WriteLine("------------------------------");

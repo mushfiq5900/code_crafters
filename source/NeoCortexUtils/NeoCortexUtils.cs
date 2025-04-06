@@ -741,7 +741,7 @@ namespace NeoCortex
 
                     // Add labels for each bar
                     // Format the similarity value
-                    string label = similarities[i].ToString("0.0");
+                    string label = similarities[i].ToString("0.00"); // Two decimal places
                     Font font = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Bold);
                     SizeF labelSize = graphics.MeasureString(label, font);
                     // Draw the label above the bar
